@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sixgramm.FileStorage.API", "Sixgramm.FileStorage.API\Sixgramm.FileStorage.API.csproj", "{9BF21B50-1087-4E52-A8D7-D84ED7C262A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sixgramm.FileStorage.Core", "Sixgramm.FileStorage.Core\Sixgramm.FileStorage.Core.csproj", "{603A08AF-E033-4F81-B37D-7AE012A709E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sixgramm.FileStorage.Common", "Sixgramm.FileStorage.Common\Sixgramm.FileStorage.Common.csproj", "{1F37FE12-20F2-4630-8587-C94D1E7F57D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sixgramm.FileStorage.Database", "Sixgramm.FileStorage.Database\Sixgramm.FileStorage.Database.csproj", "{D7B357A0-CE18-42A4-AB65-BC5226059BB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BF21B50-1087-4E52-A8D7-D84ED7C262A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BF21B50-1087-4E52-A8D7-D84ED7C262A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BF21B50-1087-4E52-A8D7-D84ED7C262A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BF21B50-1087-4E52-A8D7-D84ED7C262A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{603A08AF-E033-4F81-B37D-7AE012A709E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{603A08AF-E033-4F81-B37D-7AE012A709E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{603A08AF-E033-4F81-B37D-7AE012A709E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{603A08AF-E033-4F81-B37D-7AE012A709E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F37FE12-20F2-4630-8587-C94D1E7F57D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F37FE12-20F2-4630-8587-C94D1E7F57D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F37FE12-20F2-4630-8587-C94D1E7F57D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F37FE12-20F2-4630-8587-C94D1E7F57D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7B357A0-CE18-42A4-AB65-BC5226059BB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7B357A0-CE18-42A4-AB65-BC5226059BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7B357A0-CE18-42A4-AB65-BC5226059BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7B357A0-CE18-42A4-AB65-BC5226059BB0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

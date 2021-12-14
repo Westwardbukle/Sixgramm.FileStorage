@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Hashing" />
+      <Folder Include="Options" />
+      <Folder Include="Profiles" />
+      <Folder Include="Services" />
+      <Folder Include="Token" />
+      <Folder Include="User" />
+      <Folder Include="Validating" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Sixgramm.FileStorage.Common\Sixgramm.FileStorage.Common.csproj" />
+    </ItemGroup>
+
+</Project>
