@@ -2,7 +2,6 @@
 {
     public enum FileTypes
     {
-        
         Jpeg=1,
         Txt=2,
         Pdf=3,

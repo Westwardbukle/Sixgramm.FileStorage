@@ -7,8 +7,7 @@ namespace Sixgramm.FileStorage.Core.Dto.File
     {
         public string Name { get; set; }
         public string Length { get; set; }
-        public string Typr { get; set; }
-        
+
         public  FileTypes Types { get; set; }
     }
 }

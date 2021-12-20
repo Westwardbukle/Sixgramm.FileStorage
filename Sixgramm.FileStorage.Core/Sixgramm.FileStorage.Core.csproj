@@ -5,17 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Hashing" />
-      <Folder Include="Options" />
-      <Folder Include="Profiles" />
-      <Folder Include="Services" />
-      <Folder Include="Token" />
-      <Folder Include="User" />
-      <Folder Include="Validating" />
+      <ProjectReference Include="..\Sixgramm.FileStorage.Common\Sixgramm.FileStorage.Common.csproj" />
+      <ProjectReference Include="..\Sixgramm.FileStorage.Database\Sixgramm.FileStorage.Database.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Sixgramm.FileStorage.Common\Sixgramm.FileStorage.Common.csproj" />
+      <PackageReference Include="AutoMapper" Version="10.1.1" />
+      <PackageReference Include="NLog.Web.AspNetCore" Version="5.0.0-preview.3" />
     </ItemGroup>
 
 </Project>
