@@ -131,7 +131,7 @@ namespace Sixgramm.FileStorage.API
                     ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
                     RequireExpirationTime = false,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppOptions:SecretKey"])) //Configuration["JwtToken:SecretKey"]
                 }; 
                 options.SaveToken = true;
             });
@@ -158,13 +158,11 @@ namespace Sixgramm.FileStorage.API
                 options.SwaggerDoc("v1", new OpenApiInfo {Title = "Sixgramm.FileStorage.API", Version = "v1"});
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
-                    Name = "Autorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "Bearer {authToken}",
                     In = ParameterLocation.Header,
+                    Name = "Autorization",
+                    BearerFormat = "Bearer {authToken}",
                     Description = "JSON Web Token to access resources. Example: Bearer {token}",
-                    //Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+                    Type = SecuritySchemeType.ApiKey
                 });
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
@@ -177,7 +175,7 @@ namespace Sixgramm.FileStorage.API
                                 Id = "Bearer"
                             }
                         },
-                        new string[] { }
+                        Array.Empty<string>()
                     }
                 });
                /* var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
