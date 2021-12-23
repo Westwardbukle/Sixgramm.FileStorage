@@ -25,7 +25,7 @@ namespace Sixgramm.FileStorage.API.Controllers
 
             if (result.Data == null)
                 return NoContent();
-
+            
             return Ok(result.Data);
         }
     }

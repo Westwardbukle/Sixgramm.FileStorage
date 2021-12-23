@@ -9,7 +9,6 @@ namespace Sixgramm.FileStorage.Core.ProFiles
         public AppProfile()
         {
             CreateMap<FileModel, FileModelDto>();
-            
         }
     }
 }

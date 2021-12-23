@@ -23,11 +23,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.Options;
 using Sixgramm.FileStorage.Core.ProFiles;
 using Sixgramm.FileStorage.Core.Services;
 using Sixgramm.FileStorage.Core.Token;
 using Sixgramm.FileStorage.Database;
+using Sixgramm.FileStorage.Database.Repository.File;
 
 namespace Sixgramm.FileStorage.API
 {
@@ -60,6 +62,8 @@ namespace Sixgramm.FileStorage.API
             ConfigureSwagger(services);
             
             // Configure Repositories & Services
+            services.AddScoped<IFileRepository, FileRepository>();
+            services.AddTransient<IFileService, FileService>();
             
             /*services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRestoringCodeRepository, RestoringCodeRepository>();
@@ -69,11 +73,11 @@ namespace Sixgramm.FileStorage.API
             services.AddScoped<IRestorePasswordService, RestorePasswordService>();
             services.AddScoped<IUserService, UserService>();*/
             
-            var connection = Configuration.GetConnectionString("DefaultConnection");
             //services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(connection));
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection,  
-                x => x.MigrationsAssembly("Sixgram.Auth.Database")));
             
+            var con = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<AppDbContext>(_ => _.UseNpgsql(con));
+
             //Configure AutoMapper Profile
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -83,8 +87,6 @@ namespace Sixgramm.FileStorage.API
             services.AddSingleton(mapper);
             
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-            services.AddControllers();
-            
             services.AddControllers();
         }
         
@@ -178,7 +180,7 @@ namespace Sixgramm.FileStorage.API
                         Array.Empty<string>()
                     }
                 });
-               /* var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                /*var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);*/
             });

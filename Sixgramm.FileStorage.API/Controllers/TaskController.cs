@@ -25,15 +25,23 @@ namespace Sixgramm.FileStorage.API
         {
             _fileService = fileService;
         }
-        
-        
-        
-        
-        
-        
 
         /// <summary>
-        /// Get user by Id
+        /// Add file
+        /// </summary>
+        /// <param name="byte stream"></param>
+        /// <response code="200">Return file Id</response>
+        /// <response code="400">If the file already exists or file is not valid</response>
+        [HttpPost("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<FileModelResponseDto>> DownloadFile()
+            => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
+                (_fileService.Create()); 
+                
+                
+        /// <summary>
+        /// Get file by Id
         /// </summary>
         /// <param name="id"></param>
         /// <response code="200">Return user</response>
@@ -46,14 +54,19 @@ namespace Sixgramm.FileStorage.API
                 (_fileService.GetById(id));
         
         /// <summary>
-        /// Delete user
+        /// Delete file
         /// </summary>
         /// <param name="id"></param>
         /// <response code="200">Return file</response>
+        /// <response code="204">No response</response>
         /// <response code="404">If file doesn't exist</response>
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<FileModelResponseDto>> Delete(Guid id)
             => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
                 (_fileService.Delete(id));
+        
+        
+        
+        
     }
 }
