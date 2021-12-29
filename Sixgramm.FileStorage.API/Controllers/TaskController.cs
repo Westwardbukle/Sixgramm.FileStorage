@@ -12,7 +12,7 @@ namespace Sixgramm.FileStorage.API
 {
     [ApiVersion("1.0")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Route("/api/v{version:apiVersion}/[controller]")]
     public class TaskController : BaseController
     {
@@ -31,15 +31,14 @@ namespace Sixgramm.FileStorage.API
         /// </summary>
         /// <param name="byte stream"></param>
         /// <response code="200">Return file Id</response>
-        /// <response code="400">If the file already exists or file is not valid</response>
+        /// <response code="400">If the file is not valid</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<FileModelResponseDto>> DownloadFile()
             => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
-                (_fileService.Create()); 
-                
-                
+                (_fileService.DownloadFile()); 
+        
         /// <summary>
         /// Get file by Id
         /// </summary>
@@ -64,9 +63,6 @@ namespace Sixgramm.FileStorage.API
         public async Task<ActionResult<FileModelResponseDto>> Delete(Guid id)
             => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
                 (_fileService.Delete(id));
-        
-        
-        
         
     }
 }
