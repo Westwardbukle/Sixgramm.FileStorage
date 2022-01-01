@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
+using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
 using Sixgramm.FileStorage.Core.File;
-using Sixgramm.FileStorage.Database;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
 
@@ -18,53 +18,47 @@ namespace Sixgramm.FileStorage.Core.Services
     {
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public FileService
         (
-            IWebHostEnvironment environment,
             IFileRepository fileRepository,
-            IMapper mapper
+            IMapper mapper,
+            IWebHostEnvironment webHostEnvironment
         )
         {
-            _environment = environment;
+            _webHostEnvironment = webHostEnvironment;
             _fileRepository = fileRepository;
             _mapper = mapper;
         }
-        
-        /*public async Task<ResultContainer<FileModelResponseDto>> DownloadFile(IFormFile uploadedFile)
+
+
+        public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
         {
-            var result = new ResultContainer<FileModelResponseDto>();
-            var file = await _fileRepository.DownloadFile(new FileModel());
-            if (uploadedFile!=null) 
+            var result = new ResultContainer<FileDownloadResponseDto>();
+
+            if (uploadedFile != null)
             {
-                string path = "/Files/" + uploadedFile.FileName;
-                using (var fileStream = new FileStream
-                    ( _environment.WebRootPath+"\\files\\" + uploadedFile.FileName, FileMode.Create))
+                
+                string path = _webHostEnvironment.WebRootPath + "\\files\\" + uploadedFile.FileName;
+                
+                using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
                 }
-                
-                file ={  = uploadedFile.Name, Path = path, Typ = filetype, FileWeight = lenght };
-                
-                result = _mapper.Map<ResultContainer<FileModelResponseDto>>();
-                return result;
-            }
-            result.ErrorType = ErrorType.BadRequest;
-            return result;
-        }*/
 
-        public Task<ResultContainer<FileModelResponseDto>> DownloadFile()
-        {
-            var result = new ResultContainer<FileModelResponseDto>();
-            var file = await _fileRepository.DownloadFile();
-            if (file==null)
-            {
-                result.ErrorType = ErrorType.NotFound;
+                FileModel file = new FileModel
+                {
+                    Name = uploadedFile.FileName,
+                    Path = path,
+                    Length = uploadedFile.Length,
+                    Types = uploadedFile.ContentType
+                };
+                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
                 return result;
             }
 
-            result = _mapper.Map<ResultContainer<FileModelResponseDto>>(file);
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
 

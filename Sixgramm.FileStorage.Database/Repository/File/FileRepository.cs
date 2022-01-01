@@ -1,4 +1,5 @@
-﻿using Sixgramm.FileStorage.Database.Models;
+﻿using System.Threading.Tasks;
+using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.Base;
 
 namespace Sixgramm.FileStorage.Database.Repository.File
@@ -7,6 +8,7 @@ namespace Sixgramm.FileStorage.Database.Repository.File
     {
         public FileRepository(AppDbContext context) : base(context)
         {
+            
         }
     }
 }

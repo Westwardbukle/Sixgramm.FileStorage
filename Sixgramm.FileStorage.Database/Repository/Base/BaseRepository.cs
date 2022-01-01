@@ -19,7 +19,7 @@ namespace Sixgramm.FileStorage.Database.Repository.Base
         public TModel GetOne(Func<TModel, bool> predicate)
             => _context.Set<TModel>().AsNoTracking().FirstOrDefault(predicate);
 
-        public async Task<TModel> DownloadFile(TModel item)
+        public async Task<TModel> Create(TModel item)
         {
             item.DateCreated = DateTime.Now;
             await _context.Set<TModel>().AddAsync(item);

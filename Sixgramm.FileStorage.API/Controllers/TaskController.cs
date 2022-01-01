@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sixgramm.FileStorage.API.Controllers;
 using Sixgramm.FileStorage.Common.Result;
+using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
 using Sixgramm.FileStorage.Core.File;
+using Sixgramm.FileStorage.Database.Models;
 
 namespace Sixgramm.FileStorage.API
 {
@@ -29,15 +32,15 @@ namespace Sixgramm.FileStorage.API
         /// <summary>
         /// Add file
         /// </summary>
-        /// <param name="byte stream"></param>
+        /// <param name="string ($binary)"></param>
         /// <response code="200">Return file Id</response>
-        /// <response code="400">If the file is not valid</response>
+        /// <response code="404">If the file is not found</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<FileModelResponseDto>> DownloadFile()
-            => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
-                (_fileService.DownloadFile()); 
+        public async Task<ActionResult> DownloadFile(IFormFile uploadedFile)
+        => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
+                (_fileService.DownloadFile(uploadedFile));
         
         /// <summary>
         /// Get file by Id
@@ -63,6 +66,5 @@ namespace Sixgramm.FileStorage.API
         public async Task<ActionResult<FileModelResponseDto>> Delete(Guid id)
             => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
                 (_fileService.Delete(id));
-        
     }
 }

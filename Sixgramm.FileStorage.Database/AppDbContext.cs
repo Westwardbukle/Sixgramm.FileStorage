@@ -21,12 +21,11 @@ namespace Sixgramm.FileStorage.Database
             modelBuilder.Entity<FileModel>(file =>
             {
                 file.Property(f => f.Name).IsRequired().HasMaxLength(50);
-                file.Property(f => f.UserId).IsRequired();
-                file.Property(f => f.Path).IsRequired().HasMaxLength(100);
+                file.Property(f => f.UserId).IsRequired().HasMaxLength(50);
+                file.Property(f => f.Path).IsRequired();
                 file.Property(f => f.Length).IsRequired();
                 file.Property(f => f.Types).IsRequired().HasMaxLength(30);
                 file.Property(f => f.DateCreated).IsRequired();
-
             });
         }
     }

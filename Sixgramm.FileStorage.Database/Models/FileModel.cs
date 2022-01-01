@@ -8,11 +8,9 @@ namespace Sixgramm.FileStorage.Database.Models
     public class FileModel : BaseModel
     {
         public string Name { get; set; }
-        
         public Guid UserId { get; set; }
         public string Path { get; set; }
         public long Length { get; set; }
-        
-        public FileTypes Types { get; set; }
+        public string Types { get; set; }
     }
 }
