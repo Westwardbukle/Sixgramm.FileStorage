@@ -8,6 +8,7 @@ using Sixgramm.FileStorage.API.Controllers;
 using Sixgramm.FileStorage.Common.Result;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
+using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Database.Models;
 
@@ -51,8 +52,8 @@ namespace Sixgramm.FileStorage.API
         [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FileModelResponseDto>> GetById(Guid id)
-            => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
+        public async Task<ActionResult<FileUploadResponseDto>> GetById(Guid id)
+            => await ReturnResult<ResultContainer<FileUploadResponseDto>, FileUploadResponseDto>
                 (_fileService.GetById(id));
         
         /// <summary>

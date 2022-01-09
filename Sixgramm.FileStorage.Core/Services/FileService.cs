@@ -1,13 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders.Physical;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
+using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
@@ -40,7 +43,7 @@ namespace Sixgramm.FileStorage.Core.Services
             if (uploadedFile != null)
             {
                 
-                string path = _webHostEnvironment.WebRootPath + "\\files\\" + uploadedFile.FileName;
+                var path = _webHostEnvironment.WebRootPath + "\\files\\" + uploadedFile.FileName;
                 
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
@@ -62,9 +65,9 @@ namespace Sixgramm.FileStorage.Core.Services
             return result;
         }
 
-        public async Task<ResultContainer<FileModelResponseDto>> GetById(Guid id)
+        public async Task<ResultContainer<FileUploadResponseDto>> GetById(Guid id)
         {
-            var result = new ResultContainer<FileModelResponseDto>();
+            var result = new ResultContainer<FileUploadResponseDto>();
             var file = await _fileRepository.GetById(id);
             if (file==null)
             {
@@ -72,7 +75,17 @@ namespace Sixgramm.FileStorage.Core.Services
                 return result;
             }
 
-            result = _mapper.Map<ResultContainer<FileModelResponseDto>>(file);
+            FileInfo fileInfo = new FileInfo(file.Path);
+            
+            if (fileInfo.Exists)
+            {
+                var fileUploadResponse = new FileUploadResponseDto();
+                fileUploadResponse.Bytes=await System.IO.File.ReadAllBytesAsync(file.Path);
+               // result = 
+                return result;
+            }
+
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
         
@@ -85,9 +98,16 @@ namespace Sixgramm.FileStorage.Core.Services
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
+
+            FileInfo fileInfo = new FileInfo(file.Path);
+            
+            if (fileInfo.Exists)
+            {
+                fileInfo.Delete();
+            }
+            
             result = _mapper.Map<ResultContainer<FileModelResponseDto>>(file);
             return result;
         }
-        
     }
 }
