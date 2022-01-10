@@ -1,4 +1,5 @@
 ﻿using System.Dynamic;
+using Sixgramm.FileStorage.Common.Base;
 
 namespace Sixgramm.FileStorage.Core.Dto.Upload
 {

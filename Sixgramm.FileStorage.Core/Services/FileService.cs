@@ -6,6 +6,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders.Physical;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
 using Sixgramm.FileStorage.Core.Dto.Download;
@@ -42,7 +44,6 @@ namespace Sixgramm.FileStorage.Core.Services
 
             if (uploadedFile != null)
             {
-                
                 var path = _webHostEnvironment.WebRootPath + "\\files\\" + uploadedFile.FileName;
                 
                 using (var fileStream = new FileStream(path, FileMode.Create))
@@ -79,9 +80,11 @@ namespace Sixgramm.FileStorage.Core.Services
             
             if (fileInfo.Exists)
             {
-                var fileUploadResponse = new FileUploadResponseDto();
-                fileUploadResponse.Bytes=await System.IO.File.ReadAllBytesAsync(file.Path);
-               // result = 
+                var fileUploadResponse = new FileUploadResponseDto
+                {
+                    Bytes = await System.IO.File.ReadAllBytesAsync(file.Path)
+                };
+                result = _mapper.Map<ResultContainer<FileUploadResponseDto>>(fileUploadResponse);
                 return result;
             }
 

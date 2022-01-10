@@ -14,17 +14,20 @@ namespace Sixgramm.FileStorage.Core.ProFiles
         {
             CreateMap<FileModel, FileModelDto>();
             CreateMap<FileModel, FileModelResponseDto>();
-            CreateMap<FileModel, FileDownloadResponseDto>();
-           // CreateMap<FileUploadRequestDto, FileUploadResponseDto>();//?
             CreateMap<FileModel, ResultContainer<FileModelResponseDto>>()
-                .ForMember("Data", opt =>
-                    opt.MapFrom(f => f));
+                            .ForMember("Data", opt =>
+                                opt.MapFrom(f => f));
+            CreateMap<FileModel, FileDownloadResponseDto>();
             CreateMap<FileModel, ResultContainer<FileDownloadResponseDto>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(f => f));
-            /*CreateMap <ResultContainer<FileUploadRequestDto>,FileUploadResponseDto>()
+            CreateMap<FileUploadResponseDto, ResultContainer<FileUploadResponseDto>>()
                 .ForMember("Data", opt =>
-                    opt.MapFrom(f => f));//?*/
+                    opt.MapFrom(f => f));
+            /*CreateMap<FileModel, FileUploadResponseDto>();
+            CreateMap<FileModel, ResultContainer<FileUploadResponseDto>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(f => f));*/
             CreateMap<TokenModel, FileModelDto>();
         }
     }
