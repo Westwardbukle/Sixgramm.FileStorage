@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +17,7 @@ using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
+using ContentResult = Sixgramm.FileStorage.Common.Content.ContentResult;
 
 namespace Sixgramm.FileStorage.Core.Services
 {
@@ -36,10 +38,10 @@ namespace Sixgramm.FileStorage.Core.Services
             _fileRepository = fileRepository;
             _mapper = mapper;
         }
-
-
+        
         public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
         {
+            
             var result = new ResultContainer<FileDownloadResponseDto>();
 
             if (uploadedFile != null)
@@ -65,7 +67,7 @@ namespace Sixgramm.FileStorage.Core.Services
             result.ErrorType = ErrorType.NotFound;
             return result;
         }
-
+        
         public async Task<ResultContainer<FileUploadResponseDto>> GetById(Guid id)
         {
             var result = new ResultContainer<FileUploadResponseDto>();
@@ -108,8 +110,8 @@ namespace Sixgramm.FileStorage.Core.Services
             {
                 fileInfo.Delete();
             }
+            result.ContentResult = ContentResult.NoContentResult;
             
-            result = _mapper.Map<ResultContainer<FileModelResponseDto>>(file);
             return result;
         }
     }

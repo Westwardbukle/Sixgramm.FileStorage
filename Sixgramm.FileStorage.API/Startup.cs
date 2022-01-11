@@ -180,9 +180,9 @@ namespace Sixgramm.FileStorage.API
                         Array.Empty<string>()
                     }
                 });
-                /*var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);*/
+                options.IncludeXmlComments(xmlPath);
             });
         }
     }

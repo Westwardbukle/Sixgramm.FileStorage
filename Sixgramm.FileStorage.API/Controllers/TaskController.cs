@@ -47,7 +47,7 @@ namespace Sixgramm.FileStorage.API
         /// Get file by Id
         /// </summary>
         /// <param name="id"></param>
-        /// <response code="200">Return user</response>
+        /// <response code="200">Return bytes file</response>
         /// <response code="404">If user with Id doesn't exist</response>
         [HttpGet("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,8 +60,7 @@ namespace Sixgramm.FileStorage.API
         /// Delete file
         /// </summary>
         /// <param name="id"></param>
-        /// <response code="200">Return file</response>
-        /// <response code="204">No response</response>
+        /// <response code="204">No content</response>
         /// <response code="404">If file doesn't exist</response>
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<FileModelResponseDto>> Delete(Guid id)

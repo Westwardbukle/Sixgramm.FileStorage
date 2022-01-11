@@ -1,4 +1,5 @@
-﻿using Sixgramm.FileStorage.Common.Error;
+﻿using Sixgramm.FileStorage.Common.Content;
+using Sixgramm.FileStorage.Common.Error;
 
 namespace Sixgramm.FileStorage.Common.Result
 {
@@ -6,5 +7,6 @@ namespace Sixgramm.FileStorage.Common.Result
     {
         public T Data { get; set; }
         public ErrorType? ErrorType { get; set; }
+        public ContentResult? ContentResult { get; set; }
     }
 }
