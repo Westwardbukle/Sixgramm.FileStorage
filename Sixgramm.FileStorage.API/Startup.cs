@@ -38,6 +38,7 @@ namespace Sixgramm.FileStorage.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
         }
 
         public IConfiguration Configuration { get; }
@@ -116,7 +117,6 @@ namespace Sixgramm.FileStorage.API
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
-        
         
         private void ConfigureAuthentication(IServiceCollection services) 
         {

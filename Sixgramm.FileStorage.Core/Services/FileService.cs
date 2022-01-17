@@ -1,11 +1,15 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using JWT;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -25,18 +29,19 @@ namespace Sixgramm.FileStorage.Core.Services
     {
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly string _filePath;
 
         public FileService
         (
             IFileRepository fileRepository,
             IMapper mapper,
-            IWebHostEnvironment webHostEnvironment
+            IConfiguration configuration
+            
         )
         {
-            _webHostEnvironment = webHostEnvironment;
             _fileRepository = fileRepository;
             _mapper = mapper;
+            _filePath = configuration.GetValue<string>("Repo");
         }
         
         public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
@@ -46,16 +51,32 @@ namespace Sixgramm.FileStorage.Core.Services
 
             if (uploadedFile != null)
             {
-                var path = _webHostEnvironment.WebRootPath + "\\files\\" + uploadedFile.FileName;
+                var directoryInfo = new DirectoryInfo(_filePath);
+
+                if (!directoryInfo.Exists)
+                {
+                    directoryInfo.Create();
+                }
+
+                var name = new Guid();
+                name=Guid.NewGuid();
                 
-                using (var fileStream = new FileStream(path, FileMode.Create))
+                
+               string[] type= uploadedFile.ContentType.Split("/");
+                
+                var path = _filePath + name +"."+type[1]; /*uploadedFile.FileName*/
+
+                
+                await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
                 }
+                
 
-                FileModel file = new FileModel
+                var file = new FileModel
                 {
-                    Name = uploadedFile.FileName,
+                    Name = name,
+                    //UserId =,
                     Path = path,
                     Length = uploadedFile.Length,
                     Types = uploadedFile.ContentType
@@ -78,7 +99,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 return result;
             }
 
-            FileInfo fileInfo = new FileInfo(file.Path);
+            var fileInfo = new FileInfo(file.Path);
             
             if (fileInfo.Exists)
             {
@@ -104,7 +125,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 return result;
             }
 
-            FileInfo fileInfo = new FileInfo(file.Path);
+            var fileInfo = new FileInfo(file.Path);
             
             if (fileInfo.Exists)
             {
