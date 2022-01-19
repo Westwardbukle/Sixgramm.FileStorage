@@ -16,7 +16,7 @@ namespace Sixgramm.FileStorage.API
 {
     [ApiVersion("1.0")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Route("/api/v{version:apiVersion}/[controller]")]
     public class TaskController : BaseController
     {
@@ -38,7 +38,7 @@ namespace Sixgramm.FileStorage.API
         /// <response code="404">If the file is not found</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DownloadFile(IFormFile uploadedFile)
         => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
                 (_fileService.DownloadFile(uploadedFile));

@@ -64,14 +64,8 @@ namespace Sixgramm.FileStorage.API
             // Configure Repositories & Services
             services.AddScoped<IFileRepository, FileRepository>();
             services.AddTransient<IFileService, FileService>();
-            
-            /*services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IRestoringCodeRepository, RestoringCodeRepository>();
-            services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IRestorePasswordService, RestorePasswordService>();
-            services.AddScoped<IUserService, UserService>();*/
+            
             
             //services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(connection));
             
@@ -88,6 +82,7 @@ namespace Sixgramm.FileStorage.API
             
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
             services.AddControllers();
+            services.AddHttpContextAccessor();
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -112,31 +107,30 @@ namespace Sixgramm.FileStorage.API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
         
-        
-        private void ConfigureAuthentication(IServiceCollection services) 
+        private void ConfigureAuthentication(IServiceCollection services)
         {
-            services.AddAuthentication(option => 
-            {
-                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; 
-            }).AddJwtBearer(options => 
-            {
-                options.TokenValidationParameters = new TokenValidationParameters 
+            var key = Encoding.ASCII.GetBytes(Configuration["AppOptions:SecretKey"]);
+            
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(x =>
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = false,
-                    ValidateIssuerSigningKey = true,
-                    RequireExpirationTime = false,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppOptions:SecretKey"])) //Configuration["JwtToken:SecretKey"]
-                }; 
-                options.SaveToken = true;
-            });
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false,
+                        ValidateLifetime = false,
+                        ValidateIssuer = false,
+                        RequireExpirationTime = false,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                    };
+                    x.SaveToken = true;
+                });
         }
 
         private static void ConfigureSwagger(IServiceCollection services)
@@ -161,7 +155,7 @@ namespace Sixgramm.FileStorage.API
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     In = ParameterLocation.Header,
-                    Name = "Autorization",
+                    Name = "Authorization",
                     BearerFormat = "Bearer {authToken}",
                     Description = "JSON Web Token to access resources. Example: Bearer {token}",
                     Type = SecuritySchemeType.ApiKey

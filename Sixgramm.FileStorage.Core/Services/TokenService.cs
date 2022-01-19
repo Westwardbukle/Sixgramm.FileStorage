@@ -1,5 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using Sixgramm.FileStorage.Core.Options;
 using Sixgramm.FileStorage.Core.Token;
 
@@ -7,21 +11,18 @@ namespace Sixgramm.FileStorage.Core.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly string _secretKey;
+        private readonly HttpContext _httpContext;
 
         public TokenService
         (
-            AppOptions appOptions
+            IHttpContextAccessor httpContextAccessor
         )
         {
-            _secretKey = appOptions.SecretKey;
+            _httpContext = httpContextAccessor.HttpContext;
         }
 
-        /*public TokenModel WriteToken()
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secretKey);
-            
-        }*/
+        public Guid? CurrentUserId()
+            => Guid.TryParse(_httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+                ? userId : null;
     }
 }
