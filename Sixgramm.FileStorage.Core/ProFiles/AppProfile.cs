@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Sixgramm.FileStorage.Common.Result;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
@@ -24,10 +25,13 @@ namespace Sixgramm.FileStorage.Core.ProFiles
             CreateMap<FileUploadResponseDto, ResultContainer<FileUploadResponseDto>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(f => f));
-            /*CreateMap<FileModel, FileUploadResponseDto>();
-            CreateMap<FileModel, ResultContainer<FileUploadResponseDto>>()
+            
+            
+            CreateMap<IActionResult, ResultContainer<PhysicalFileResult>>()
                 .ForMember("Data", opt =>
-                    opt.MapFrom(f => f));*/
+                    opt.MapFrom(f => f));
+            
+            
             CreateMap<TokenModel, FileModelDto>();
         }
     }
