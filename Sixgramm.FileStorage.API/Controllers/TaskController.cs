@@ -55,7 +55,7 @@ namespace Sixgramm.FileStorage.API
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetById(Guid id)
-            => await ReturnResult<ResultContainer<PhysicalFileResult>,PhysicalFileResult> 
+            => await ReturnResult<ResultContainer<PhysicalFileResult>,PhysicalFileResult>
                 (_fileService.GetById(id));
         
         /// <summary>

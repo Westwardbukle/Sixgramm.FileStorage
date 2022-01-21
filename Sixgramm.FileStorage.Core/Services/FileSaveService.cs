@@ -34,14 +34,13 @@ public class FileSaveService : IFileSaveService
         }
 
 
-        var userDirectory = new DirectoryInfo(_filePath + _tokenService.CurrentUserId());
+        var userDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString()));
         if (!userDirectory.Exists)
         {
             userDirectory.Create();
         }
 
 
-        var path = _filePath + _tokenService.CurrentUserId() + "/" + name + type;
-        return path;
+        return Path.Combine(_filePath,_tokenService.CurrentUserId().ToString())+"\\"+name+type;
     }
 }

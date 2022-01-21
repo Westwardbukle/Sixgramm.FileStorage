@@ -21,7 +21,7 @@ using ContentResult = Sixgramm.FileStorage.Common.Content.ContentResult;
 
 namespace Sixgramm.FileStorage.Core.Services
 {
-    public class FileService: IFileService
+    public class FileService : IFileService
     {
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
@@ -41,30 +41,29 @@ namespace Sixgramm.FileStorage.Core.Services
             _tokenService = tokenService;
             _fileSave = fileSave;
         }
-        
+
         public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
         {
-            
             var result = new ResultContainer<FileDownloadResponseDto>();
-            
+
             if (uploadedFile != null)
             {
                 var name = Guid.NewGuid();
-                
+
                 var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
 
                 var path = _fileSave.SetFilePath(type, name);
-                    
+
                 await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
                 }
-                
+
 
                 var file = new FileModel
                 {
                     Name = name,
-                    UserId = (Guid)_tokenService.CurrentUserId(),
+                    UserId = (Guid) _tokenService.CurrentUserId(),
                     Path = path,
                     Length = uploadedFile.Length,
                     Types = type
@@ -72,23 +71,23 @@ namespace Sixgramm.FileStorage.Core.Services
                 result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
                 return result;
             }
-            
+
             result.ErrorType = ErrorType.NotFound;
             return result;
         }
-        
+
         public async Task<ResultContainer<PhysicalFileResult>> GetById(Guid id)
         {
             var result = new ResultContainer<PhysicalFileResult>();
             var file = await _fileRepository.GetById(id);
-            if (file==null)
+            if (file == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
             var fileInfo = new FileInfo(file.Path);
-            
+
             if (fileInfo.Exists)
             {
                 /*var fileUploadResponse = new FileUploadResponseDto
@@ -97,34 +96,50 @@ namespace Sixgramm.FileStorage.Core.Services
                 };
                 result = _mapper.Map<ResultContainer<FileUploadResponseDto>>(fileUploadResponse);
                 return result;*/
-                var physicalFile = new PhysicalFileResult(file.Path,file.Types);
-                result = _mapper.Map<ResultContainer<PhysicalFileResult>>(physicalFile);
-               return result;
+
+
+                /*var fileUpload = new FileUploadResponseDto();
+                fileUpload.PhysicalFileResult = GetFileResult(file.Path,file.Types, file.Name.ToString());
+                result = _mapper.Map<ResultContainer<FileUploadResponseDto>>(fileUpload); */
+
+                var fileResult = GetFileResult(file.Path, file.Types, file.Name.ToString());
+
+                result = _mapper.Map<ResultContainer<PhysicalFileResult>>(fileResult);
+                return result;
             }
 
             result.ErrorType = ErrorType.NotFound;
             return result;
         }
-        
+
         public async Task<ResultContainer<FileModelResponseDto>> Delete(Guid id)
         {
             var result = new ResultContainer<FileModelResponseDto>();
             var file = await _fileRepository.Delete(id);
-            if (file==null)
+            if (file == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
             var fileInfo = new FileInfo(file.Path);
-            
+
             if (fileInfo.Exists)
             {
                 fileInfo.Delete();
             }
+
             result.ContentResult = ContentResult.NoContentResult;
-            
+
             return result;
+        }
+
+        private static PhysicalFileResult GetFileResult(string path, string types, string name)
+        {
+            return new PhysicalFileResult(path, "application/octet-stream")
+            {
+                FileDownloadName = name + types
+            };
         }
     }
 }
