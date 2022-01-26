@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders.Physical;
+using Microsoft.Net.Http.Headers;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
 using Sixgramm.FileStorage.Core.Dto.Download;
@@ -18,119 +21,125 @@ using ContentResult = Sixgramm.FileStorage.Common.Content.ContentResult;
 
 namespace Sixgramm.FileStorage.Core.Services
 {
-    public class FileService: IFileService
+    public class FileService : IFileService
     {
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
-        private readonly string _filePath;
         private readonly ITokenService _tokenService;
+        private readonly IFileSaveService _fileSave;
 
         public FileService
         (
             IFileRepository fileRepository,
             IMapper mapper,
-            IConfiguration configuration,
-            ITokenService tokenService
+            ITokenService tokenService,
+            IFileSaveService fileSave
         )
         {
             _fileRepository = fileRepository;
             _mapper = mapper;
-            _filePath = configuration.GetValue<string>("Repo");
             _tokenService = tokenService;
+            _fileSave = fileSave;
         }
-        
+
         public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
         {
-            
             var result = new ResultContainer<FileDownloadResponseDto>();
-            
+
             if (uploadedFile != null)
             {
-                var directoryInfo = new DirectoryInfo(_filePath);
+                var name = Guid.NewGuid();
 
-                if (!directoryInfo.Exists)
-                {
-                    directoryInfo.Create();
-                }
+                var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
 
-                var name = new Guid();
-                name=Guid.NewGuid();
-                
-                
-               var type= uploadedFile.ContentType.Split("/");
-               var userDirectory = new DirectoryInfo(_filePath+ _tokenService.CurrentUserId());
-               userDirectory.Create();
-                
-                var path = _filePath+ _tokenService.CurrentUserId()+"/" + name +"."+type.Last(); /*uploadedFile.FileName*/
+                var path = _fileSave.SetFilePath(type, name);
 
-                
                 await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
                 }
-                
+
 
                 var file = new FileModel
                 {
                     Name = name,
-                    UserId = (Guid)_tokenService.CurrentUserId(),
+                    UserId = (Guid) _tokenService.CurrentUserId(),
                     Path = path,
                     Length = uploadedFile.Length,
-                    Types = uploadedFile.ContentType
+                    Types = type
                 };
                 result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
                 return result;
             }
-            
+
             result.ErrorType = ErrorType.NotFound;
             return result;
         }
-        
-        public async Task<ResultContainer<FileUploadResponseDto>> GetById(Guid id)
+
+        public async Task<ResultContainer<PhysicalFileResult>> GetById(Guid id)
         {
-            var result = new ResultContainer<FileUploadResponseDto>();
+            var result = new ResultContainer<PhysicalFileResult>();
             var file = await _fileRepository.GetById(id);
-            if (file==null)
+            if (file == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
             var fileInfo = new FileInfo(file.Path);
-            
+
             if (fileInfo.Exists)
             {
-                var fileUploadResponse = new FileUploadResponseDto
+                /*var fileUploadResponse = new FileUploadResponseDto
                 {
                     Bytes = await System.IO.File.ReadAllBytesAsync(file.Path)
                 };
                 result = _mapper.Map<ResultContainer<FileUploadResponseDto>>(fileUploadResponse);
+                return result;*/
+
+
+                /*var fileUpload = new FileUploadResponseDto();
+                fileUpload.PhysicalFileResult = GetFileResult(file.Path,file.Types, file.Name.ToString());
+                result = _mapper.Map<ResultContainer<FileUploadResponseDto>>(fileUpload); */
+
+                var fileResult = GetFileResult(file.Path, file.Types, file.Name.ToString());
+
+                result = _mapper.Map<ResultContainer<PhysicalFileResult>>(fileResult);
                 return result;
             }
 
             result.ErrorType = ErrorType.NotFound;
             return result;
         }
-        
+
         public async Task<ResultContainer<FileModelResponseDto>> Delete(Guid id)
         {
             var result = new ResultContainer<FileModelResponseDto>();
             var file = await _fileRepository.Delete(id);
-            if (file==null)
+            if (file == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
             var fileInfo = new FileInfo(file.Path);
-            
+
             if (fileInfo.Exists)
             {
                 fileInfo.Delete();
             }
+
             result.ContentResult = ContentResult.NoContentResult;
-            
+
             return result;
+        }
+
+        private static PhysicalFileResult GetFileResult(string path, string types, string name)
+        {
+            return new PhysicalFileResult(path, "application/octet-stream")
+            {
+                FileDownloadName = name + types
+            };
         }
     }
 }
