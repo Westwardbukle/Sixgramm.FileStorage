@@ -23,6 +23,7 @@ namespace Sixgramm.FileStorage.API
     public class TaskController : BaseController
     {
         private readonly IFileService _fileService;
+        private const long MaxFileSize = 10L * 1024L * 1024L * 1024L;
 
         public TaskController
         (
@@ -41,6 +42,8 @@ namespace Sixgramm.FileStorage.API
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [RequestSizeLimit(MaxFileSize)]
+        [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)]
         public async Task<ActionResult> DownloadFile(IFormFile uploadedFile)
         => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
                 (_fileService.DownloadFile(uploadedFile));
