@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,6 +28,54 @@ namespace Sixgramm.FileStorage.Core.Services
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
         private readonly IFileSaveService _fileSave;
+        
+        private static Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
+        {
+            { ".jpeg", new List<byte[]>
+                {
+                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 },
+                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE2 },
+                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
+                }
+            },
+            { ".doc", new List<byte[]>
+                {
+                    new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 }
+                }
+            },
+            { ".docx", new List<byte[]>
+                {
+                    new byte[] { 0x50, 0x4B, 0x03, 0x04 },
+                    new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00 }
+                }
+            },
+            { ".xls", new List<byte[]>
+                {
+                    new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1  }
+                }
+            },
+            { ".xlsx", new List<byte[]>
+                {
+                    new byte[] { 0x50, 0x4B, 0x03, 0x04 },
+                    new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00 }
+                }
+            },
+            { ".mp3", new List<byte[]>
+                {
+                    new byte[] { 0x49, 0x44, 0x33 }
+                }
+            },
+            { ".gif", new List<byte[]>
+                {
+                    new byte[] { 0x47, 0x49, 0x46, 0x38 }
+                }
+            },
+            { ".png", new List<byte[]>
+                {
+                    new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }
+                }
+            }
+        };
 
         public FileService
         (
@@ -48,6 +97,7 @@ namespace Sixgramm.FileStorage.Core.Services
 
             if (uploadedFile != null)
             {
+
                 var name = Guid.NewGuid();
 
                 var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
@@ -56,6 +106,10 @@ namespace Sixgramm.FileStorage.Core.Services
 
                 await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
+                     using (var reader = new BinaryReader(fileStream))
+                    {
+                        
+                    }
                     await uploadedFile.CopyToAsync(fileStream);
                 }
 
