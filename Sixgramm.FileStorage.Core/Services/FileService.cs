@@ -38,6 +38,13 @@ namespace Sixgramm.FileStorage.Core.Services
                     new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
                 }
             },
+            { ".jpg", new List<byte[]>
+                {
+                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 },
+                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE2 },
+                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
+                }
+            },
             { ".doc", new List<byte[]>
                 {
                     new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 }
@@ -106,11 +113,25 @@ namespace Sixgramm.FileStorage.Core.Services
 
                 await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
-                     using (var reader = new BinaryReader(fileStream))
-                    {
-                        
-                    }
                     await uploadedFile.CopyToAsync(fileStream);
+                     /*using (var reader = new BinaryReader(fileStream))
+                     {
+                         var key = Path.GetExtension(uploadedFile.FileName);
+                         if(_fileSignature.ContainsKey(key))
+                         {
+                             var signatures = _fileSignature[key];
+                             var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
+                             if (signatures.Any(signature =>
+                                     headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
+                             {
+                                 result.ErrorType = ErrorType.UnsupportedMediaType;
+                             }
+                         }
+                         else
+                         {
+                             result.ErrorType = ErrorType.UnsupportedMediaType;
+                         }
+                     }*/
                 }
 
 

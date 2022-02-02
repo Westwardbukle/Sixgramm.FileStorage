@@ -1,0 +1,117 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Sixgramm.FileStorage.Core.FileSecurity;
+
+namespace Sixgramm.FileStorage.Core.Services;
+
+public class FileSecurityService : IFileSecurityService
+{
+    private readonly string[] _permittedExtensions;
+    
+    public FileSecurityService
+    (
+        IConfiguration configuration
+    )
+    {
+        _permittedExtensions = configuration.GetValue<string>("Extensions").Split(",");
+    }
+    
+    
+    private static Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
+            {
+                { ".jpeg", new List<byte[]>
+                    {
+                        new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 },
+                        new byte[] { 0xFF, 0xD8, 0xFF, 0xE2 },
+                        new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
+                    }
+                },
+                { ".jpg", new List<byte[]>
+                    {
+                        new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 },
+                        new byte[] { 0xFF, 0xD8, 0xFF, 0xE2 },
+                        new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
+                    }
+                },
+                { ".doc", new List<byte[]>
+                    {
+                        new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 }
+                    }
+                },
+                { ".docx", new List<byte[]>
+                    {
+                        new byte[] { 0x50, 0x4B, 0x03, 0x04 },
+                        new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00 }
+                    }
+                },
+                { ".xls", new List<byte[]>
+                    {
+                        new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1  }
+                    }
+                },
+                { ".xlsx", new List<byte[]>
+                    {
+                        new byte[] { 0x50, 0x4B, 0x03, 0x04 },
+                        new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00 }
+                    }
+                },
+                { ".mp3", new List<byte[]>
+                    {
+                        new byte[] { 0x49, 0x44, 0x33 }
+                    }
+                },
+                { ".gif", new List<byte[]>
+                    {
+                        new byte[] { 0x47, 0x49, 0x46, 0x38 }
+                    }
+                },
+                { ".png", new List<byte[]>
+                    {
+                        new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }
+                    }
+                }
+            };
+    
+    public bool CheckExtension(IFormFile uploadedFile)
+    {
+        var ext = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
+        
+        return !string.IsNullOrEmpty(ext) && _permittedExtensions.Contains(ext);
+    }
+
+    /*public async Task<bool> CheckSignature(IFormFile uploadedFile)
+    {
+        using (var reader = new )
+        {
+            
+        }
+        
+        await using (var fileStream = new FileStream(path, FileMode.))
+        {
+            await uploadedFile.CopyToAsync(fileStream);
+            /*using (var reader = new BinaryReader(fileStream))
+            {
+                var key = Path.GetExtension(uploadedFile.FileName);
+                if(_fileSignature.ContainsKey(key))
+                {
+                    var signatures = _fileSignature[key];
+                    var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
+                    if (signatures.Any(signature =>
+                            headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
+                    {
+                        result.ErrorType = ErrorType.UnsupportedMediaType;
+                    }
+                }
+                else
+                {
+                    result.ErrorType = ErrorType.UnsupportedMediaType;
+                }
+            }#1#
+        }
+    }*/
+    
+}
