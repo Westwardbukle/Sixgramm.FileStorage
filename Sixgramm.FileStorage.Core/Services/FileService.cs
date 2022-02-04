@@ -28,6 +28,7 @@ namespace Sixgramm.FileStorage.Core.Services
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
         private readonly IFileSaveService _fileSave;
+        private readonly string[] _permittedExtensions;
         
         private static Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
         {
@@ -81,7 +82,17 @@ namespace Sixgramm.FileStorage.Core.Services
                 {
                     new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }
                 }
+            },
+            { ".mp4", new List<byte[]>
+            {
+                new byte[] { 0x66, 0x74, 0x79, 0x70 },
+                new byte[] { 0x6D, 0x6D, 0x70, 0x34 },
+                new byte[] { 0x6D, 0x64, 0x61, 0x74 },
+                new byte[] { 0x00, 0x00, 0x00, 0x1C },
+                new byte[] { },
+                //new byte[] { 0x66, 0x74, 0x79, 0x70, 0x6D, 0x70, 0x34, 0x32 },
             }
+        }
         };
 
         public FileService
@@ -89,13 +100,15 @@ namespace Sixgramm.FileStorage.Core.Services
             IFileRepository fileRepository,
             IMapper mapper,
             ITokenService tokenService,
-            IFileSaveService fileSave
+            IFileSaveService fileSave,
+            IConfiguration configuration
         )
         {
             _fileRepository = fileRepository;
             _mapper = mapper;
             _tokenService = tokenService;
             _fileSave = fileSave;
+            _permittedExtensions = configuration.GetValue<string>("Extensions").Split(",");
         }
 
         public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
@@ -109,29 +122,38 @@ namespace Sixgramm.FileStorage.Core.Services
 
                 var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
 
-                var path = _fileSave.SetFilePath(type, name);
+                if (string.IsNullOrEmpty(type) || !_permittedExtensions.Contains(type))
+                {
+                    result.ErrorType = ErrorType.BadRequest;
+                    return result;
+                }
+                
+                
+                using (var reader = new BinaryReader(uploadedFile.OpenReadStream())) 
+                {
+                    if(_fileSignature.ContainsKey(type))
+                    {
+                        var signatures = _fileSignature[type];
+                        var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
+                        if (signatures.Any(signature =>
+                                headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
+                        {
+                            result.ErrorType = ErrorType.BadRequest;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.ErrorType = ErrorType.BadRequest;
+                        return result;
+                    }
+                }
+                
+                var path = _fileSave.SetFilePath(type, name); 
 
                 await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
-                     /*using (var reader = new BinaryReader(fileStream))
-                     {
-                         var key = Path.GetExtension(uploadedFile.FileName);
-                         if(_fileSignature.ContainsKey(key))
-                         {
-                             var signatures = _fileSignature[key];
-                             var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
-                             if (signatures.Any(signature =>
-                                     headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
-                             {
-                                 result.ErrorType = ErrorType.UnsupportedMediaType;
-                             }
-                         }
-                         else
-                         {
-                             result.ErrorType = ErrorType.UnsupportedMediaType;
-                         }
-                     }*/
                 }
 
 

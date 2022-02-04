@@ -38,9 +38,11 @@ namespace Sixgramm.FileStorage.API
         /// </summary>
         /// <param name="string ($binary)"></param>
         /// <response code="200">Return file Id</response>
+        /// <response code="400">File not supported</response>
         /// <response code="404">If the file is not found</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [RequestSizeLimit(MaxFileSize)] 
         [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)] 

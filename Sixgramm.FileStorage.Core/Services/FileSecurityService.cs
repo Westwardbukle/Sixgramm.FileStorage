@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Core.FileSecurity;
 
 namespace Sixgramm.FileStorage.Core.Services;
@@ -76,42 +77,31 @@ public class FileSecurityService : IFileSecurityService
                 }
             };
     
-    public bool CheckExtension(IFormFile uploadedFile)
+    public bool CheckExtension(string type)
     {
-        var ext = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
-        
-        return !string.IsNullOrEmpty(ext) && _permittedExtensions.Contains(ext);
+        return !string.IsNullOrEmpty(type) && _permittedExtensions.Contains(type);
     }
 
-    /*public async Task<bool> CheckSignature(IFormFile uploadedFile)
+    public bool CheckSignature(IFormFile uploadedFile, string type)
     {
-        using (var reader = new )
+        using (var reader = new BinaryReader(uploadedFile.OpenReadStream())) 
         {
-            
-        }
-        
-        await using (var fileStream = new FileStream(path, FileMode.))
-        {
-            await uploadedFile.CopyToAsync(fileStream);
-            /*using (var reader = new BinaryReader(fileStream))
+            if(_fileSignature.ContainsKey(type))
             {
-                var key = Path.GetExtension(uploadedFile.FileName);
-                if(_fileSignature.ContainsKey(key))
+                var signatures = _fileSignature[type];
+                var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
+                if (signatures.Any(signature =>
+                        headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
                 {
-                    var signatures = _fileSignature[key];
-                    var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
-                    if (signatures.Any(signature =>
-                            headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
-                    {
-                        result.ErrorType = ErrorType.UnsupportedMediaType;
-                    }
+                    return false;
                 }
-                else
-                {
-                    result.ErrorType = ErrorType.UnsupportedMediaType;
-                }
-            }#1#
+            }
+            else
+            {
+                return false;
+            }
+            
+            return true;
         }
-    }*/
-    
+    }
 }
