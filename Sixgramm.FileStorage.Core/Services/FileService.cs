@@ -15,6 +15,7 @@ using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
 using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
+using Sixgramm.FileStorage.Core.FileSecurity;
 using Sixgramm.FileStorage.Core.Token;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
@@ -28,72 +29,9 @@ namespace Sixgramm.FileStorage.Core.Services
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
         private readonly IFileSaveService _fileSave;
+        private readonly IFileSecurityService _fileSecurity;
         private readonly string[] _permittedExtensions;
         
-        private static Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
-        {
-            { ".jpeg", new List<byte[]>
-                {
-                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 },
-                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE2 },
-                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
-                }
-            },
-            { ".jpg", new List<byte[]>
-                {
-                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 },
-                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE2 },
-                    new byte[] { 0xFF, 0xD8, 0xFF, 0xE3 }
-                }
-            },
-            { ".doc", new List<byte[]>
-                {
-                    new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 }
-                }
-            },
-            { ".docx", new List<byte[]>
-                {
-                    new byte[] { 0x50, 0x4B, 0x03, 0x04 },
-                    new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00 }
-                }
-            },
-            { ".xls", new List<byte[]>
-                {
-                    new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1  }
-                }
-            },
-            { ".xlsx", new List<byte[]>
-                {
-                    new byte[] { 0x50, 0x4B, 0x03, 0x04 },
-                    new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00 }
-                }
-            },
-            { ".mp3", new List<byte[]>
-                {
-                    new byte[] { 0x49, 0x44, 0x33 }
-                }
-            },
-            { ".gif", new List<byte[]>
-                {
-                    new byte[] { 0x47, 0x49, 0x46, 0x38 }
-                }
-            },
-            { ".png", new List<byte[]>
-                {
-                    new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }
-                }
-            },
-            { ".mp4", new List<byte[]>
-            {
-                new byte[] { 0x66, 0x74, 0x79, 0x70 },
-                new byte[] { 0x6D, 0x6D, 0x70, 0x34 },
-                new byte[] { 0x6D, 0x64, 0x61, 0x74 },
-                new byte[] { 0x00, 0x00, 0x00, 0x1C },
-                new byte[] { },
-                //new byte[] { 0x66, 0x74, 0x79, 0x70, 0x6D, 0x70, 0x34, 0x32 },
-            }
-        }
-        };
 
         public FileService
         (
@@ -101,7 +39,8 @@ namespace Sixgramm.FileStorage.Core.Services
             IMapper mapper,
             ITokenService tokenService,
             IFileSaveService fileSave,
-            IConfiguration configuration
+            IConfiguration configuration,
+            IFileSecurityService fileSecurity
         )
         {
             _fileRepository = fileRepository;
@@ -109,6 +48,7 @@ namespace Sixgramm.FileStorage.Core.Services
             _tokenService = tokenService;
             _fileSave = fileSave;
             _permittedExtensions = configuration.GetValue<string>("Extensions").Split(",");
+            _fileSecurity = fileSecurity;
         }
 
         public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
@@ -122,32 +62,19 @@ namespace Sixgramm.FileStorage.Core.Services
 
                 var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
 
-                if (string.IsNullOrEmpty(type) || !_permittedExtensions.Contains(type))
+                if (_fileSecurity.CheckExtension(type))
+                {
+                    result.ErrorType = ErrorType.BadRequest;
+                    return result;
+                }
+
+
+                if (_fileSecurity.CheckSignature(uploadedFile, type)==false)
                 {
                     result.ErrorType = ErrorType.BadRequest;
                     return result;
                 }
                 
-                
-                using (var reader = new BinaryReader(uploadedFile.OpenReadStream())) 
-                {
-                    if(_fileSignature.ContainsKey(type))
-                    {
-                        var signatures = _fileSignature[type];
-                        var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
-                        if (signatures.Any(signature =>
-                                headerBytes.Take(signature.Length).SequenceEqual(signature))==false)
-                        {
-                            result.ErrorType = ErrorType.BadRequest;
-                            return result;
-                        }
-                    }
-                    else
-                    {
-                        result.ErrorType = ErrorType.BadRequest;
-                        return result;
-                    }
-                }
                 
                 var path = _fileSave.SetFilePath(type, name); 
 

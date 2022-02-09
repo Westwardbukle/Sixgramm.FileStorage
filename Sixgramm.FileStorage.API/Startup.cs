@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sixgramm.FileStorage.Core.File;
+using Sixgramm.FileStorage.Core.FileSecurity;
 using Sixgramm.FileStorage.Core.Options;
 using Sixgramm.FileStorage.Core.ProFiles;
 using Sixgramm.FileStorage.Core.Services;
@@ -66,6 +67,7 @@ namespace Sixgramm.FileStorage.API
             services.AddScoped<IFileSaveService, FileSaveService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IFileSecurityService, FileSecurityService>();
             
             
             //services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(connection));
