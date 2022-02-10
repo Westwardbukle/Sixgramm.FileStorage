@@ -11,8 +11,10 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Net.Http.Headers;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
+using Sixgramm.FileStorage.Common.Types;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
+using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.FileSecurity;
@@ -51,16 +53,16 @@ namespace Sixgramm.FileStorage.Core.Services
             _fileSecurity = fileSecurity;
         }
 
-        public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
+        public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(FileInfoModuleDto fileInfoModuleDto)
         {
-            var result = new ResultContainer<FileDownloadResponseDto>();
+            var result = new ResultContainer<FileDownloadResponseDto>(); 
 
-            if (uploadedFile != null)
+            if (fileInfoModuleDto.UploadedFile != null)
             {
 
                 var name = Guid.NewGuid();
 
-                var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
+                var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
 
                 if (_fileSecurity.CheckExtension(type))
                 {
@@ -69,18 +71,18 @@ namespace Sixgramm.FileStorage.Core.Services
                 }
 
 
-                if (_fileSecurity.CheckSignature(uploadedFile, type)==false)
+                if (_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile, type)==false)
                 {
                     result.ErrorType = ErrorType.BadRequest;
                     return result;
                 }
                 
                 
-                var path = _fileSave.SetFilePath(type, name); 
+                var path = _fileSave.SetFilePath(type, name, fileInfoModuleDto); 
 
                 await using (var fileStream = new FileStream(path, FileMode.Create))
                 {
-                    await uploadedFile.CopyToAsync(fileStream);
+                    await fileInfoModuleDto.UploadedFile.CopyToAsync(fileStream);
                 }
 
 
@@ -89,7 +91,7 @@ namespace Sixgramm.FileStorage.Core.Services
                     Name = name,
                     UserId = (Guid) _tokenService.CurrentUserId(),
                     Path = path,
-                    Length = uploadedFile.Length,
+                    Length = fileInfoModuleDto.UploadedFile.Length,
                     Types = type
                 };
                 result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
