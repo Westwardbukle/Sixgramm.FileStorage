@@ -21,7 +21,7 @@ namespace Sixgramm.FileStorage.Database.Repository.Base
 
         public async Task<TModel> Create(TModel item)
         {
-            //item.DateCreated = DateTime.Now;
+            item.DateCreated = DateTime.Now;
             await _context.Set<TModel>().AddAsync(item);
             await _context.SaveChangesAsync();
             return item;

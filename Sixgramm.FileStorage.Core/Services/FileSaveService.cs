@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,8 +27,10 @@ public class FileSaveService : IFileSaveService
         _tokenService = tokenService;
     }
 
-    public string SetFilePath(string type, Guid name, FileInfoModuleDto fileInfoModuleDto)
+    public List<string> SetFilePath(string type, Guid name, FileInfoModuleDto fileInfoModuleDto)
     {
+        var info = new List<string>();
+        
         var fileSource = fileInfoModuleDto.FileSource switch
         {
             FileSource.Post => "Post",
@@ -51,13 +54,17 @@ public class FileSaveService : IFileSaveService
         }
 
         var sourceDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString(),
-            fileSource, fileInfoModuleDto.PostId.ToString()));
+            fileSource, fileInfoModuleDto.SourceId.ToString()));
         if (!sourceDirectory.Exists)
         {
             sourceDirectory.Create();
         }
-
-        return sourceDirectory.FullName + "\\" + name + type;
+        
+        var path = sourceDirectory.FullName + "\\" + name + type;
+        info.Add(path);
+        info.Add(fileSource);
+        
+        return info;
 
         //return Path.Combine(_filePath,_tokenService.CurrentUserId().ToString(), fileSource, fileInfoModuleDto.PostId.ToString())+"\\"+name+type;
     }

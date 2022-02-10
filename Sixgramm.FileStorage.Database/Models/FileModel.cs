@@ -12,5 +12,7 @@ namespace Sixgramm.FileStorage.Database.Models
         public string Path { get; set; }
         public long Length { get; set; }
         public string Types { get; set; }
+        public Guid SourceId { get; set; }
+        public string FileSource { get; set; }
     }
 }

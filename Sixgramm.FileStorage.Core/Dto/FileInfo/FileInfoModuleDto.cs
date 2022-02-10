@@ -6,7 +6,7 @@ namespace Sixgramm.FileStorage.Core.Dto.FileInfo;
 
 public class FileInfoModuleDto
 {
-    public Guid PostId { get; set; }
+    public Guid SourceId { get; set; }
     public FileSource FileSource { get; set; }
     public IFormFile UploadedFile { get; set; }
 }

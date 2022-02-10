@@ -80,7 +80,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 
                 var path = _fileSave.SetFilePath(type, name, fileInfoModuleDto); 
 
-                await using (var fileStream = new FileStream(path, FileMode.Create))
+                await using (var fileStream = new FileStream(path.First(), FileMode.Create))
                 {
                     await fileInfoModuleDto.UploadedFile.CopyToAsync(fileStream);
                 }
@@ -90,9 +90,11 @@ namespace Sixgramm.FileStorage.Core.Services
                 {
                     Name = name,
                     UserId = (Guid) _tokenService.CurrentUserId(),
-                    Path = path,
+                    Path = path.First(),
                     Length = fileInfoModuleDto.UploadedFile.Length,
-                    Types = type
+                    Types = type,
+                    SourceId = fileInfoModuleDto.SourceId,
+                    FileSource = path.Last()
                 };
                 result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
                 return result;
