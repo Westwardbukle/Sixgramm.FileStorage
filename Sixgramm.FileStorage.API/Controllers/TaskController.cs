@@ -8,8 +8,10 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Net.Http.Headers;
 using Sixgramm.FileStorage.API.Controllers;
 using Sixgramm.FileStorage.Common.Result;
+using Sixgramm.FileStorage.Common.Types;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
+using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Database.Models;
@@ -23,6 +25,7 @@ namespace Sixgramm.FileStorage.API
     public class TaskController : BaseController
     {
         private readonly IFileService _fileService;
+        private const long MaxFileSize = 10L * 1024L * 1024L * 1024L;
 
         public TaskController
         (
@@ -35,15 +38,19 @@ namespace Sixgramm.FileStorage.API
         /// <summary>
         /// Add file
         /// </summary>
-        /// <param name="string ($binary)"></param>
+        /// <param name="fileInfoModuleDto"></param>
         /// <response code="200">Return file Id</response>
+        /// <response code="400">File not supported</response>
         /// <response code="404">If the file is not found</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DownloadFile(IFormFile uploadedFile)
+        [RequestSizeLimit(MaxFileSize)] 
+        [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)] 
+        public async Task<ActionResult> DownloadFile([FromForm]FileInfoModuleDto fileInfoModuleDto)
         => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
-                (_fileService.DownloadFile(uploadedFile));
+                (_fileService.DownloadFile(fileInfoModuleDto));
         
         /// <summary>
         /// Get file by Id

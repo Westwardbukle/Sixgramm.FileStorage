@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Sixgramm.FileStorage.Common.Types;
+using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.Token;
 
@@ -24,8 +27,18 @@ public class FileSaveService : IFileSaveService
         _tokenService = tokenService;
     }
 
-    public string SetFilePath(string type, Guid name)
+    public List<string> SetFilePath(string type, Guid name, FileInfoModuleDto fileInfoModuleDto)
     {
+        var info = new List<string>();
+        
+        var fileSource = fileInfoModuleDto.FileSource switch
+        {
+            FileSource.Post => "Post",
+            FileSource.Message => "Message",
+            FileSource.Comment => "Comment",
+            _ => "Avatar"
+        };
+
         var directoryInfo = new DirectoryInfo(_filePath);
 
         if (!directoryInfo.Exists)
@@ -40,7 +53,19 @@ public class FileSaveService : IFileSaveService
             userDirectory.Create();
         }
 
+        var sourceDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString(),
+            fileSource, fileInfoModuleDto.SourceId.ToString()));
+        if (!sourceDirectory.Exists)
+        {
+            sourceDirectory.Create();
+        }
+        
+        var path = sourceDirectory.FullName + "\\" + name + type;
+        info.Add(path);
+        info.Add(fileSource);
+        
+        return info;
 
-        return Path.Combine(_filePath,_tokenService.CurrentUserId().ToString())+"\\"+name+type;
+        //return Path.Combine(_filePath,_tokenService.CurrentUserId().ToString(), fileSource, fileInfoModuleDto.PostId.ToString())+"\\"+name+type;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,10 +11,13 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Net.Http.Headers;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
+using Sixgramm.FileStorage.Common.Types;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
+using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
+using Sixgramm.FileStorage.Core.FileSecurity;
 using Sixgramm.FileStorage.Core.Token;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
@@ -27,36 +31,58 @@ namespace Sixgramm.FileStorage.Core.Services
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
         private readonly IFileSaveService _fileSave;
+        private readonly IFileSecurityService _fileSecurity;
+        private readonly string[] _permittedExtensions;
+        
 
         public FileService
         (
             IFileRepository fileRepository,
             IMapper mapper,
             ITokenService tokenService,
-            IFileSaveService fileSave
+            IFileSaveService fileSave,
+            IConfiguration configuration,
+            IFileSecurityService fileSecurity
         )
         {
             _fileRepository = fileRepository;
             _mapper = mapper;
             _tokenService = tokenService;
             _fileSave = fileSave;
+            _permittedExtensions = configuration.GetValue<string>("Extensions").Split(",");
+            _fileSecurity = fileSecurity;
         }
 
-        public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(IFormFile uploadedFile)
+        public async Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(FileInfoModuleDto fileInfoModuleDto)
         {
-            var result = new ResultContainer<FileDownloadResponseDto>();
+            var result = new ResultContainer<FileDownloadResponseDto>(); 
 
-            if (uploadedFile != null)
+            if (fileInfoModuleDto.UploadedFile != null)
             {
+
                 var name = Guid.NewGuid();
 
-                var type = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
+                var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
 
-                var path = _fileSave.SetFilePath(type, name);
-
-                await using (var fileStream = new FileStream(path, FileMode.Create))
+                if (_fileSecurity.CheckExtension(type))
                 {
-                    await uploadedFile.CopyToAsync(fileStream);
+                    result.ErrorType = ErrorType.BadRequest;
+                    return result;
+                }
+
+
+                if (_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile, type)==false)
+                {
+                    result.ErrorType = ErrorType.BadRequest;
+                    return result;
+                }
+                
+                
+                var path = _fileSave.SetFilePath(type, name, fileInfoModuleDto); 
+
+                await using (var fileStream = new FileStream(path.First(), FileMode.Create))
+                {
+                    await fileInfoModuleDto.UploadedFile.CopyToAsync(fileStream);
                 }
 
 
@@ -64,9 +90,11 @@ namespace Sixgramm.FileStorage.Core.Services
                 {
                     Name = name,
                     UserId = (Guid) _tokenService.CurrentUserId(),
-                    Path = path,
-                    Length = uploadedFile.Length,
-                    Types = type
+                    Path = path.First(),
+                    Length = fileInfoModuleDto.UploadedFile.Length,
+                    Types = type,
+                    SourceId = fileInfoModuleDto.SourceId,
+                    FileSource = path.Last()
                 };
                 result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
                 return result;

@@ -4,6 +4,7 @@
     {
         NotFound = 1,
         BadRequest = 2,
-        Unauthorized = 3
+        Unauthorized = 3,
+        UnsupportedMediaType=4
     }
 }
