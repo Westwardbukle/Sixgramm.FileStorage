@@ -50,8 +50,8 @@ namespace Sixgramm.FileStorage.API
         [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)] 
         public async Task<ActionResult> DownloadFile([FromForm]FileInfoModuleDto fileInfoModuleDto)
         => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
-                (_fileService.DownloadFile(fileInfoModuleDto));
-        
+                (_fileService.UploadFile(fileInfoModuleDto));
+
         /// <summary>
         /// Get file by Id
         /// </summary>
