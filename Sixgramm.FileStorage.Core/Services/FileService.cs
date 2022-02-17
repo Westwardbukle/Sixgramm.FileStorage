@@ -66,7 +66,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 return result;
             }
 
-            if (_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile, type))
+            if (!_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile, type))
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
@@ -84,8 +84,8 @@ namespace Sixgramm.FileStorage.Core.Services
                 _ffMpegService.ConvertingVideoHd(firstPath, remakePath);
             }
             
-            var directoryInfo = new DirectoryInfo(firstPath);
-            if(directoryInfo.Exists) directoryInfo.Delete();
+            var originalFileInfo = new FileInfo(firstPath);
+            if(originalFileInfo.Exists) originalFileInfo.Delete();
 
             var fileInfo = new FileInfo(remakePath);
             
