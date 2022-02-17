@@ -9,5 +9,6 @@ namespace Sixgramm.FileStorage.Core.File;
 
 public interface IFileSaveService
 {
-    public List<string> SetFilePath(string type, Guid name, FileInfoModuleDto fileInfoModuleDto);
+    public void /*List<string>*/ SetFilePath(string type, Guid name,Guid name720, FileInfoModuleDto fileInfoModuleDto,
+        out string firstpath, out string remakepath, out string fileSource);
 }

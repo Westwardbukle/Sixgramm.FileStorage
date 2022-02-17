@@ -23,6 +23,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Sixgramm.FileStorage.Core.FFMpeg;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.FileSecurity;
 using Sixgramm.FileStorage.Core.Options;
@@ -68,6 +69,7 @@ namespace Sixgramm.FileStorage.API
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IFileSecurityService, FileSecurityService>();
+            services.AddScoped<IFFMpegService, FFmpegService>();
             
             
             //services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(connection));
