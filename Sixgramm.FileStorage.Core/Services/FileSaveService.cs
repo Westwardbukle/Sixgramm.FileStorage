@@ -27,11 +27,9 @@ public class FileSaveService : IFileSaveService
         _tokenService = tokenService;
     }
 
-    public void /*List<string>*/ SetFilePath(string type, Guid name,Guid name720, FileInfoModuleDto fileInfoModuleDto,
-        out string firstpath, out string remakepath, out string fileSource)
+    public void SetFilePath(string type, Guid name,Guid name720,  FileInfoModuleDto fileInfoModuleDto,
+        out string firstpath,out string outputPath, out string fileSource)
     {
-        /*var info = new List<string>();*/
-
         fileSource = fileInfoModuleDto.FileSource switch
         {
             FileSource.Post => "Post",
@@ -46,29 +44,23 @@ public class FileSaveService : IFileSaveService
         {
             directoryInfo.Create();
         }
-
-
+        
         var userDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString()));
         if (!userDirectory.Exists)
         {
             userDirectory.Create();
         }
-
+        
         var sourceDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString(),
             fileSource, fileInfoModuleDto.SourceId.ToString()));
         if (!sourceDirectory.Exists)
         {
             sourceDirectory.Create();
         }
-
-        firstpath = sourceDirectory.FullName + "\\" + name + type;
-        remakepath = sourceDirectory.FullName + "\\" + name720 + "720" + type;
         
-        /*info.Add(path);
-        info.Add(fileSource);*/
-
-        //return info;
-
-        //return Path.Combine(_filePath,_tokenService.CurrentUserId().ToString(), fileSource, fileInfoModuleDto.PostId.ToString())+"\\"+name+type;
+        firstpath = sourceDirectory.FullName + "\\" + name + type;
+        
+        outputPath = sourceDirectory.FullName + "\\" + name720 + type;
+        
     }
 }

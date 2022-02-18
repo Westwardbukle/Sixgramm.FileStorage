@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using FFMpegCore;
 using FFMpegCore.Enums;
 using Sixgramm.FileStorage.Core.FFMpeg;
 
@@ -6,10 +8,18 @@ namespace Sixgramm.FileStorage.Core.Services;
 
 public class FFmpegService : IFFMpegService
 {
-    public void ConvertingVideoHd(string inputPath, string outputPath)
+    public async Task ConvertingVideoHd(string inputPath, string outputPath)
     {
-         FFMpegCore.FFMpeg.Convert(inputPath, outputPath, VideoType.Mp4, Speed.Medium, VideoSize.Hd, AudioQuality.Normal,
-            true);
+        await FFMpegArguments
+            .FromFileInput(inputPath)
+            .OutputToFile(outputPath, true, options => options
+                .WithVideoCodec(VideoCodec.LibX264)
+                .WithConstantRateFactor(21)
+                .WithAudioCodec(AudioCodec.Aac)
+                .WithVariableBitrate(4)
+                .WithVideoFilters(filterOptions => filterOptions
+                    .Scale(VideoSize.Hd)))
+            .ProcessAsynchronously();
     }
     /*public void ConvertingVideoEd(string inputPath, string outputPath)
     {
