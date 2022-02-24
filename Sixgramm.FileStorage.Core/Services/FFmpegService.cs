@@ -12,7 +12,7 @@ public class FFmpegService : IFFMpegService
     {
         await FFMpegArguments
             .FromFileInput(inputPath)
-            .OutputToFile(outputPath, true, options => options
+            .OutputToFile(outputPath, false, options => options
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithConstantRateFactor(21)
                 .WithAudioCodec(AudioCodec.Aac)
@@ -21,19 +21,4 @@ public class FFmpegService : IFFMpegService
                     .Scale(VideoSize.Hd)))
             .ProcessAsynchronously();
     }
-    /*public void ConvertingVideoEd(string inputPath, string outputPath)
-    {
-        FFMpegCore.FFMpeg.Convert(inputPath, outputPath, VideoType.Mp4, Speed.Medium, VideoSize.Ed, AudioQuality.Normal,
-            true);
-    }
-    public void ConvertingVideoLd(string inputPath, string outputPath)
-    {
-        FFMpegCore.FFMpeg.Convert(inputPath, outputPath, VideoType.Mp4, Speed.Medium, VideoSize.Ld, AudioQuality.Normal,
-            true);
-    }
-    public void ConvertingVideoFullHd(string inputPath, string outputPath)
-    {
-        FFMpegCore.FFMpeg.Convert(inputPath, outputPath, VideoType.Mp4, Speed.Medium, VideoSize.FullHd, AudioQuality.Normal,
-            true);
-    }*/
 }

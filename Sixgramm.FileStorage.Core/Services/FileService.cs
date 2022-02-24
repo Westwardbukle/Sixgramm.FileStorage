@@ -59,21 +59,14 @@ namespace Sixgramm.FileStorage.Core.Services
 
             var name = Guid.NewGuid();
             var name720 = Guid.NewGuid();
-
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
-
-            if (_fileSecurity.CheckExtension(type))
+            
+            if (_fileSecurity.FileСheck(fileInfoModuleDto.UploadedFile, type))
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
-
-            if (!_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile, type))
-            {
-                result.ErrorType = ErrorType.BadRequest;
-                return result;
-            }
-
+            
             _fileSave.SetFilePath(type, name, name720, fileInfoModuleDto, out var firstPath, out var outputPath,
                 out var fileSource);
 
@@ -85,22 +78,22 @@ namespace Sixgramm.FileStorage.Core.Services
             if (type.Contains(".mp4"))
             {
                 await _ffMpegService.ConvertingVideoHd(firstPath, outputPath);
-                var fileinfo1 = new FileInfo(firstPath);
-                fileinfo1.Delete();
+                var fileVideo = new FileInfo(firstPath);
+                fileVideo.Delete();
 
-                var filemp4Info = new FileInfo(outputPath);
+                var fileMp4Info = new FileInfo(outputPath);
 
-                var filemp4 = new FileModel()
+                var fileMp4 = new FileModel()
                 {
                     Name = name720,
                     UserId = _tokenService.CurrentUserId().Value,
                     Path = outputPath,
-                    Length = filemp4Info.Length,
+                    Length = fileMp4Info.Length,
                     Types = type,
                     SourceId = fileInfoModuleDto.SourceId,
                     FileSource = fileSource
                 };
-                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(filemp4));
+                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(fileMp4));
                 return result;
             }
 
@@ -156,10 +149,7 @@ namespace Sixgramm.FileStorage.Core.Services
 
             var fileInfo = new FileInfo(file.Path);
 
-            if (fileInfo.Exists)
-            {
-                fileInfo.Delete();
-            }
+            if (fileInfo.Exists) fileInfo.Delete();
 
             result.ContentResult = ContentResult.NoContentResult;
 
