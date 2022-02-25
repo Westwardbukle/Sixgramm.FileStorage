@@ -89,12 +89,12 @@ public class FileSecurityService : IFileSecurityService
         }
         };
     
-    public bool CheckExtension(string type)
+    private bool CheckExtension(string type)
     {
         return string.IsNullOrEmpty(type) || !_permittedExtensions.Contains(type);
     }
 
-    public bool CheckSignature(IFormFile uploadedFile, string type)
+    private bool CheckSignature(IFormFile uploadedFile, string type)
     {
         using var reader = new BinaryReader(uploadedFile.OpenReadStream());
         if(_fileSignature.ContainsKey(type))
@@ -114,4 +114,8 @@ public class FileSecurityService : IFileSecurityService
 
         return true;
     }
+
+    public bool FileСheck(IFormFile uploadedFile, string type)
+        => CheckExtension(type) && CheckSignature(uploadedFile, type);
+    
 }

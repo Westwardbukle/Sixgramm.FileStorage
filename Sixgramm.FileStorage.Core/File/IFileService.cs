@@ -14,7 +14,7 @@ namespace Sixgramm.FileStorage.Core.File
 {
     public interface IFileService
     {
-        Task<ResultContainer<FileDownloadResponseDto>> DownloadFile(FileInfoModuleDto fileInfoModuleDto);
+        Task<ResultContainer<FileDownloadResponseDto>> UploadFile(FileInfoModuleDto fileInfoModuleDto);
         Task<ResultContainer<PhysicalFileResult>> GetById(Guid id);
         Task<ResultContainer<FileModelResponseDto>> Delete(Guid id);
     }
