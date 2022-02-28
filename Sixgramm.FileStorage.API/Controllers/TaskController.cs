@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders.Physical;
-using Microsoft.Net.Http.Headers;
 using Sixgramm.FileStorage.API.Controllers;
 using Sixgramm.FileStorage.Common.Result;
-using Sixgramm.FileStorage.Common.Types;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
 using Sixgramm.FileStorage.Core.Dto.FileInfo;
-using Sixgramm.FileStorage.Core.Dto.Upload;
 using Sixgramm.FileStorage.Core.File;
-using Sixgramm.FileStorage.Database.Models;
 
 namespace Sixgramm.FileStorage.API
 {
@@ -25,7 +19,7 @@ namespace Sixgramm.FileStorage.API
     public class TaskController : BaseController
     {
         private readonly IFileService _fileService;
-        private const long MaxFileSize = 10L * 1024L * 1024L * 1024L;
+        private const long MaxFileSize = 2L * 1024L * 1024L * 1024L;
 
         public TaskController
         (
@@ -40,12 +34,13 @@ namespace Sixgramm.FileStorage.API
         /// </summary>
         /// <param name="fileInfoModuleDto"></param>
         /// <response code="200">Return file Id</response>
-        /// <response code="400">File not supported</response>
+        /// <response code="415">File not supported</response>
         /// <response code="404">If the file is not found</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
         [RequestSizeLimit(MaxFileSize)] 
         [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)] 
         public async Task<ActionResult> DownloadFile([FromForm]FileInfoModuleDto fileInfoModuleDto)
@@ -72,6 +67,8 @@ namespace Sixgramm.FileStorage.API
         /// <response code="204">No content</response>
         /// <response code="404">If file doesn't exist</response>
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FileModelResponseDto>> Delete(Guid id)
             => await ReturnResult<ResultContainer<FileModelResponseDto>, FileModelResponseDto>
                 (_fileService.Delete(id));

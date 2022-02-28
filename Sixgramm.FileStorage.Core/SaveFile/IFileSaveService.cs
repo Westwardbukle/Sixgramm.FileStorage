@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Sixgramm.FileStorage.Common.Result;
 using Sixgramm.FileStorage.Core.Dto.FileInfo;
 
-namespace Sixgramm.FileStorage.Core.File;
+namespace Sixgramm.FileStorage.Core.SaveFile;
 
 public interface IFileSaveService
 {

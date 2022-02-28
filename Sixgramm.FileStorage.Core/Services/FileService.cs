@@ -13,6 +13,7 @@ using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Core.FFMpeg;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.FileSecurity;
+using Sixgramm.FileStorage.Core.SaveFile;
 using Sixgramm.FileStorage.Core.Token;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
@@ -61,9 +62,15 @@ namespace Sixgramm.FileStorage.Core.Services
             var name720 = Guid.NewGuid();
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
             
-            if (_fileSecurity.FileСheck(fileInfoModuleDto.UploadedFile, type))
+            if (_fileSecurity.CheckExtension(type))
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.UnsupportedMediaType;
+                return result;
+            }
+            
+            if (!_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile,type))
+            {
+                result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
             }
             
