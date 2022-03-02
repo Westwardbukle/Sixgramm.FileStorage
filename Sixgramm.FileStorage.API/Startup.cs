@@ -66,7 +66,7 @@ namespace Sixgramm.FileStorage.API
             
             // Configure Repositories & Services
             services.AddScoped<IFileRepository, FileRepository>();
-            services.AddScoped<IFileSaveService, FileSaveService>();
+            services.AddScoped<IFileSaveService, FilePathService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IFileSecurityService, FileSecurityService>();

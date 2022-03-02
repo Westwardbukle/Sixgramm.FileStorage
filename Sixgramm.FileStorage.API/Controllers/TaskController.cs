@@ -41,9 +41,9 @@ namespace Sixgramm.FileStorage.API
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
-        [RequestSizeLimit(MaxFileSize)] 
-        [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)] 
-        public async Task<ActionResult> DownloadFile([FromForm]FileInfoModuleDto fileInfoModuleDto)
+        [RequestSizeLimit(MaxFileSize)]
+        [RequestFormLimits(MultipartBodyLengthLimit = MaxFileSize)]
+        public async Task<ActionResult> UploadFile([FromForm]FileInfoModuleDto fileInfoModuleDto)
         => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
                 (_fileService.UploadFile(fileInfoModuleDto));
 

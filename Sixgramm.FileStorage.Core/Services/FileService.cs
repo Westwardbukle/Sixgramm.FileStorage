@@ -62,13 +62,7 @@ namespace Sixgramm.FileStorage.Core.Services
             var name720 = Guid.NewGuid();
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
             
-            if (_fileSecurity.CheckExtension(type))
-            {
-                result.ErrorType = ErrorType.UnsupportedMediaType;
-                return result;
-            }
-            
-            if (!_fileSecurity.CheckSignature(fileInfoModuleDto.UploadedFile,type))
+            if (!_fileSecurity.CheckFile(fileInfoModuleDto.UploadedFile, type))
             {
                 result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
@@ -76,7 +70,7 @@ namespace Sixgramm.FileStorage.Core.Services
             
             _fileSave.SetFilePath(type, name, name720, fileInfoModuleDto, out var firstPath, out var outputPath,
                 out var fileSource);
-
+            
             await using (var fileStream = new FileStream(firstPath, FileMode.Create))
             {
                 await fileInfoModuleDto.UploadedFile.CopyToAsync(fileStream);
