@@ -6,7 +6,7 @@ using Sixgramm.FileStorage.Database.TablesConfiguration;
 
 namespace Sixgramm.FileStorage.Database
 {
-    public class AppDbContext:DbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<FileModel> FileModels { get; set; }
 

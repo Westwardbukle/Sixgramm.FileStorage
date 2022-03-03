@@ -8,7 +8,6 @@ namespace Sixgramm.FileStorage.Database.Repository.File
     {
         public FileRepository(AppDbContext context) : base(context)
         {
-            
         }
     }
 }

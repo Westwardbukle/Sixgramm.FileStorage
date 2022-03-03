@@ -19,7 +19,7 @@ public class FFmpegService : IFFMpegService
                 .WithConstantRateFactor(21)
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVariableBitrate(4)
-                .Resize(1280,720)
+                .Resize(1280, 720)
                 .WithVideoFilters(filterOptions => filterOptions
                     .Scale(VideoSize.Hd))
                 .WithSpeedPreset(Speed.UltraFast))
