@@ -59,7 +59,7 @@ namespace Sixgramm.FileStorage.Core.Services
             }
 
             var name = Guid.NewGuid();
-            var name720 = Guid.NewGuid();
+            var videoname720 = Guid.NewGuid();
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
             
             if (!_fileSecurity.CheckFile(fileInfoModuleDto.UploadedFile, type))
@@ -68,7 +68,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 return result;
             }
             
-            _fileSave.SetFilePath(type, name, name720, fileInfoModuleDto, out var firstPath, out var outputPath,
+            _fileSave.SetFilePath(type, name, videoname720, fileInfoModuleDto, out var firstPath, out var outputPath,
                 out var fileSource);
             
             await using (var fileStream = new FileStream(firstPath, FileMode.Create))
@@ -86,7 +86,7 @@ namespace Sixgramm.FileStorage.Core.Services
 
                 var fileMp4 = new FileModel()
                 {
-                    Name = name720,
+                    Name = videoname720,
                     UserId = _tokenService.CurrentUserId().Value,
                     Path = outputPath,
                     Length = fileMp4Info.Length,
