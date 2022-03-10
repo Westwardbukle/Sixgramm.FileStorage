@@ -1,6 +1,8 @@
 using System;
+using System.Drawing;
 using System.Threading.Tasks;
 using FFMpegCore;
+using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using Sixgramm.FileStorage.Core.FFMpeg;
 
@@ -17,8 +19,10 @@ public class FFmpegService : IFFMpegService
                 .WithConstantRateFactor(21)
                 .WithAudioCodec(AudioCodec.Aac)
                 .WithVariableBitrate(4)
+                .Resize(1280, 720)
                 .WithVideoFilters(filterOptions => filterOptions
-                    .Scale(VideoSize.Hd)))
+                    .Scale(VideoSize.Hd))
+                .WithSpeedPreset(Speed.UltraFast))
             .ProcessAsynchronously();
     }
 }

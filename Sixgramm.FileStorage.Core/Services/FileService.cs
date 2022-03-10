@@ -13,6 +13,7 @@ using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Core.FFMpeg;
 using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.FileSecurity;
+using Sixgramm.FileStorage.Core.SaveFile;
 using Sixgramm.FileStorage.Core.Token;
 using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
@@ -25,7 +26,7 @@ namespace Sixgramm.FileStorage.Core.Services
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
-        private readonly IFileSaveService _fileSave;
+        private readonly IFilePathService _filePath;
         private readonly IFileSecurityService _fileSecurity;
         private readonly IFFMpegService _ffMpegService;
 
@@ -34,7 +35,7 @@ namespace Sixgramm.FileStorage.Core.Services
             IFileRepository fileRepository,
             IMapper mapper,
             ITokenService tokenService,
-            IFileSaveService fileSave,
+            IFilePathService filePath,
             IFileSecurityService fileSecurity,
             IFFMpegService ffMpegService
         )
@@ -42,7 +43,7 @@ namespace Sixgramm.FileStorage.Core.Services
             _fileRepository = fileRepository;
             _mapper = mapper;
             _tokenService = tokenService;
-            _fileSave = fileSave;
+            _filePath = filePath;
             _fileSecurity = fileSecurity;
             _ffMpegService = ffMpegService;
         }
@@ -58,16 +59,16 @@ namespace Sixgramm.FileStorage.Core.Services
             }
 
             var name = Guid.NewGuid();
-            var name720 = Guid.NewGuid();
+            var videoName720 = Guid.NewGuid();
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
-            
-            if (_fileSecurity.FileСheck(fileInfoModuleDto.UploadedFile, type))
+
+            if (!_fileSecurity.CheckFile(fileInfoModuleDto.UploadedFile, type))
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
             }
-            
-            _fileSave.SetFilePath(type, name, name720, fileInfoModuleDto, out var firstPath, out var outputPath,
+
+            _filePath.SetFilePath(type, name, videoName720, fileInfoModuleDto, out var firstPath, out var outputPath,
                 out var fileSource);
 
             await using (var fileStream = new FileStream(firstPath, FileMode.Create))
@@ -85,7 +86,7 @@ namespace Sixgramm.FileStorage.Core.Services
 
                 var fileMp4 = new FileModel()
                 {
-                    Name = name720,
+                    Name = videoName720,
                     UserId = _tokenService.CurrentUserId().Value,
                     Path = outputPath,
                     Length = fileMp4Info.Length,
@@ -108,7 +109,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 SourceId = fileInfoModuleDto.SourceId,
                 FileSource = fileSource
             };
-            
+
             result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
             return result;
         }
@@ -160,7 +161,9 @@ namespace Sixgramm.FileStorage.Core.Services
         {
             return new PhysicalFileResult(path, "application/octet-stream")
             {
-                FileDownloadName = name + types
+                FileDownloadName = name + types,
+                EnableRangeProcessing = true,
+                FileName = name,
             };
         }
     }

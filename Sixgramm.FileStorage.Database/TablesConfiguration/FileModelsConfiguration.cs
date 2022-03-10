@@ -4,7 +4,7 @@ using Sixgramm.FileStorage.Database.Models;
 
 namespace Sixgramm.FileStorage.Database.TablesConfiguration;
 
-public class FileModelsConfiguration: IEntityTypeConfiguration<FileModel>
+public class FileModelsConfiguration : IEntityTypeConfiguration<FileModel>
 {
     public void Configure(EntityTypeBuilder<FileModel> builder)
     {

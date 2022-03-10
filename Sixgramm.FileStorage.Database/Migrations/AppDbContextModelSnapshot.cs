@@ -28,6 +28,13 @@ namespace Sixgramm.FileStorage.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FileSource")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<long>("Length")
                         .HasColumnType("bigint");
 
@@ -39,6 +46,9 @@ namespace Sixgramm.FileStorage.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Types")
                         .IsRequired()

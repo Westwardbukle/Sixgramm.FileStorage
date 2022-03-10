@@ -6,16 +6,16 @@ namespace Sixgramm.FileStorage.Core.Token
     {
         public TokenModel(string token, long expiration)
         {
-            if(string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
                 throw new ArgumentException("Invalid token.");
 
-            if(expiration <= 0)
+            if (expiration <= 0)
                 throw new ArgumentException("Invalid expiration.");
 
             Token = token;
             Expiration = expiration;
         }
-        
+
         public string Token { get; set; }
         public long Expiration { get; set; }
     }

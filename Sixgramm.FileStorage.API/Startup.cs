@@ -28,6 +28,7 @@ using Sixgramm.FileStorage.Core.File;
 using Sixgramm.FileStorage.Core.FileSecurity;
 using Sixgramm.FileStorage.Core.Options;
 using Sixgramm.FileStorage.Core.ProFiles;
+using Sixgramm.FileStorage.Core.SaveFile;
 using Sixgramm.FileStorage.Core.Services;
 using Sixgramm.FileStorage.Core.Token;
 using Sixgramm.FileStorage.Database;
@@ -65,7 +66,7 @@ namespace Sixgramm.FileStorage.API
             
             // Configure Repositories & Services
             services.AddScoped<IFileRepository, FileRepository>();
-            services.AddScoped<IFileSaveService, FileSaveService>();
+            services.AddScoped<IFilePathService, FilePathService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IFileSecurityService, FileSecurityService>();

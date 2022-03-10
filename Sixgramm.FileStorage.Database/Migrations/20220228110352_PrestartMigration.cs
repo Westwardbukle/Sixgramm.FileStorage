@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Sixgramm.FileStorage.Database.Migrations
 {
-    public partial class CreateDatabaseMigration : Migration
+    public partial class PrestartMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -18,7 +18,10 @@ namespace Sixgramm.FileStorage.Database.Migrations
                     UserId = table.Column<Guid>(type: "uuid", maxLength: 50, nullable: false),
                     Path = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Length = table.Column<long>(type: "bigint", nullable: false),
-                    Types = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false)
+                    Types = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    SourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FileSource = table.Column<string>(type: "text", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {

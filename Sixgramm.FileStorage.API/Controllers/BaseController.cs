@@ -19,6 +19,7 @@ namespace Sixgramm.FileStorage.API.Controllers
                     ErrorType.NotFound => NotFound(),
                     ErrorType.BadRequest => BadRequest(),
                     ErrorType.Unauthorized => Unauthorized(),
+                    ErrorType.UnsupportedMediaType =>StatusCode(415),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }

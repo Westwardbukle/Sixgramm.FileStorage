@@ -4,5 +4,5 @@ namespace Sixgramm.FileStorage.Core.FileSecurity;
 
 public interface IFileSecurityService
 {
-    public bool FileСheck(IFormFile uploadedFile, string type);
+    public bool CheckFile(IFormFile uploadedFile, string type);
 }
