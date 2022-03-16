@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Sixgramm.FileStorage.Core.Dto.FileInfo;
 using Sixgramm.FileStorage.Database.Models;
 

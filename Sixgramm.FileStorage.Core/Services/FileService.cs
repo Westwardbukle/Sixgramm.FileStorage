@@ -47,9 +47,9 @@ namespace Sixgramm.FileStorage.Core.Services
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
-            
+
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
-            
+
             var fileSource = fileInfoModuleDto.FileSource switch
             {
                 FileSource.Post => "Post",
@@ -63,19 +63,27 @@ namespace Sixgramm.FileStorage.Core.Services
                 result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
             }
-
+            
             if (fileInfoModuleDto.FileSource == FileSource.Avatar)
             {
+                if (!(type.Contains(".jpg") || type.Contains(".jpeg") || type.Contains(".png")))
+                {
+                    result.ErrorType = ErrorType.UnsupportedMediaType;
+                    return result;
+                }
+
                 var avatar = await _fileSave.SaveAvatar(type, fileSource, fileInfoModuleDto);
-                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(avatar));
+                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(
+                    await _fileRepository.Create(avatar));
                 return result;
             }
 
             if (type.Contains(".mp4"))
             {
-               var videoFile= await _fileSave.SaveVideoFile(type, fileSource, fileInfoModuleDto.SourceId.ToString(), fileInfoModuleDto);
-               result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(videoFile));
-               return result;
+                var videoFile = await _fileSave.SaveVideoFile(type, fileSource, fileInfoModuleDto.SourceId.ToString(),
+                    fileInfoModuleDto);
+                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(videoFile));
+                return result;
             }
 
             var fileModel = await _fileSave.SaveFile(type, fileSource, fileInfoModuleDto);
