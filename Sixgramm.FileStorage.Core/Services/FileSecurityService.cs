@@ -24,7 +24,7 @@ public class FileSecurityService : IFileSecurityService
     }
 
 
-    private static Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
+    private static readonly Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
     {
         {
             ".jpeg", new List<byte[]>

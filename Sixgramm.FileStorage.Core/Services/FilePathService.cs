@@ -28,16 +28,40 @@ public class FilePathService : IFilePathService
         _tokenService = tokenService;
     }
 
-    public void SetFilePath(string type, Guid name, Guid name720, FileInfoModuleDto fileInfoModuleDto,
-        out string firstpath, out string outputPath, out string fileSource)
+    public void SetVideoPath(string type, string fileSource, string sourceId,
+        out string firstPath, out string outputPath, out Guid name, out Guid videoName720)
     {
-        fileSource = fileInfoModuleDto.FileSource switch
+        name = Guid.NewGuid();
+        videoName720 = Guid.NewGuid();
+        
+        var directoryInfo = new DirectoryInfo(_filePath);
+
+        if (!directoryInfo.Exists)
         {
-            FileSource.Post => "Post",
-            FileSource.Message => "Message",
-            FileSource.Comment => "Comment",
-            _ => "Avatar"
-        };
+            directoryInfo.Create();
+        }
+
+        var userDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString()));
+        if (!userDirectory.Exists)
+        {
+            userDirectory.Create();
+        }
+
+        var sourceDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString(),
+            fileSource, sourceId));
+        if (!sourceDirectory.Exists)
+        {
+            sourceDirectory.Create();
+        }
+
+        firstPath = sourceDirectory.FullName + "\\" + name + type;
+
+        outputPath = sourceDirectory.FullName + "\\" + videoName720 + type;
+    }
+    
+    public void SetAvtarPath(string type, string fileSource, out string firstpath, out Guid name)
+    {
+        name = Guid.NewGuid();
 
         var directoryInfo = new DirectoryInfo(_filePath);
 
@@ -53,14 +77,38 @@ public class FilePathService : IFilePathService
         }
 
         var sourceDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString(),
-            fileSource, fileInfoModuleDto.SourceId.ToString()));
+            fileSource));
         if (!sourceDirectory.Exists)
         {
             sourceDirectory.Create();
         }
 
         firstpath = sourceDirectory.FullName + "\\" + name + type;
+    }
+    public void SetFilePath(string type, string fileSource, Guid sourceId , out string firstPath, out Guid name)
+    {
+        name = Guid.NewGuid();
 
-        outputPath = sourceDirectory.FullName + "\\" + name720 + type;
+        var directoryInfo = new DirectoryInfo(_filePath);
+
+        if (!directoryInfo.Exists)
+        {
+            directoryInfo.Create();
+        }
+
+        var userDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString()));
+        if (!userDirectory.Exists)
+        {
+            userDirectory.Create();
+        }
+
+        var sourceDirectory = new DirectoryInfo(Path.Combine(_filePath, _tokenService.CurrentUserId().ToString(),
+            fileSource, sourceId.ToString()));
+        if (!sourceDirectory.Exists)
+        {
+            sourceDirectory.Create();
+        }
+
+        firstPath = sourceDirectory.FullName + "\\" + name + type;
     }
 }
