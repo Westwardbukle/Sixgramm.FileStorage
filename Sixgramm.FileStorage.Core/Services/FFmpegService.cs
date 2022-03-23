@@ -10,6 +10,9 @@ namespace Sixgramm.FileStorage.Core.Services;
 
 public class FFmpegService : IFFMpegService
 {
+    /// <summary>
+    /// Reduces the quality of the video file
+    /// </summary>
     public async Task ConvertingVideoHd(string inputPath, string outputPath)
     {
         await FFMpegArguments

@@ -27,7 +27,10 @@ public class FilePathService : IFilePathService
         _filePath = configuration.GetValue<string>("Repo");
         _tokenService = tokenService;
     }
-
+    
+    /// <summary>
+    /// Builds a path to save the video file
+    /// </summary>
     public void SetVideoPath(string type, string fileSource, string sourceId,
         out string firstPath, out string outputPath, out Guid name, out Guid videoName720)
     {
@@ -59,6 +62,9 @@ public class FilePathService : IFilePathService
         outputPath = sourceDirectory.FullName + "\\" + videoName720 + type;
     }
     
+    /// <summary>
+    /// Builds a path to save the avatar
+    /// </summary>
     public void SetAvtarPath(string type, string fileSource, out string firstpath, out Guid name)
     {
         name = Guid.NewGuid();
@@ -85,6 +91,10 @@ public class FilePathService : IFilePathService
 
         firstpath = sourceDirectory.FullName + "\\" + name + type;
     }
+    
+    /// <summary>
+    /// Builds a path to save the file
+    /// </summary>
     public void SetFilePath(string type, string fileSource, Guid sourceId , out string firstPath, out Guid name)
     {
         name = Guid.NewGuid();

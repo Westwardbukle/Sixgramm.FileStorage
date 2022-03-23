@@ -22,8 +22,7 @@ public class FileSecurityService : IFileSecurityService
     {
         _permittedExtensions = configuration.GetValue<string>("Extensions").Split(",");
     }
-
-
+    
     private static readonly Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
     {
         {
@@ -98,12 +97,20 @@ public class FileSecurityService : IFileSecurityService
             }
         }
     };
-
+    
+    /// <summary>
+    /// Checks the file extension in the allowed list
+    /// </summary>
+    /// <returns>true or false</returns>
     private bool CheckExtension(string type)
     {
         return _permittedExtensions.Contains(type);
     }
 
+    /// <summary>
+    /// Checks the signature of a file against the list of available signatures
+    /// </summary>
+    /// <returns> true or false</returns>
     private static bool CheckSignature(IFormFile uploadedFile, string type)
     {
         using var reader = new BinaryReader(uploadedFile.OpenReadStream());
@@ -125,6 +132,10 @@ public class FileSecurityService : IFileSecurityService
         return true;
     }
 
+    /// <summary>
+    /// Checks the signature and extension of a file in the allowed list
+    /// </summary>
+    /// <returns> true or false</returns>
     public bool CheckFile(IFormFile uploadedFile, string type)
     {
         return CheckExtension(type) && CheckSignature(uploadedFile, type);

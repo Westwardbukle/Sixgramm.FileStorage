@@ -88,7 +88,7 @@ namespace Sixgramm.FileStorage.API
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             
-            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);  
             services.AddControllers();
             services.AddHttpContextAccessor();
         }
