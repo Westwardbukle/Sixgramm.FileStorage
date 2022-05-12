@@ -1,12 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Sixgramm.FileStorage.Common.Error;
-using Sixgramm.FileStorage.Common.Result;
-using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.FileSecurity;
 
 namespace Sixgramm.FileStorage.Core.Services;
@@ -120,9 +116,7 @@ public class FileSecurityService : IFileSecurityService
             var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
             if (signatures.Any(signature =>
                     headerBytes.Take(signature.Length).SequenceEqual(signature)) == false)
-            {
                 return false;
-            }
         }
         else
         {
@@ -138,6 +132,6 @@ public class FileSecurityService : IFileSecurityService
     /// <returns> true or false</returns>
     public bool CheckFile(IFormFile uploadedFile, string type)
     {
-        return CheckExtension(type) && CheckSignature(uploadedFile, type);
+        return CheckExtension(type) /*&& CheckSignature(uploadedFile, type)*/;
     }
 }

@@ -91,6 +91,8 @@ namespace Sixgramm.FileStorage.API
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);  
             services.AddControllers();
             services.AddHttpContextAccessor();
+
+            services.AddCors();
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -114,6 +116,14 @@ namespace Sixgramm.FileStorage.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(c => c.WithOrigins("http://10.254.7.74:3000", "http://10.254.7.20:3000")
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+            );
+                
+            
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -58,7 +58,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 _ => "Avatar"
             };
 
-            if (!_fileSecurity.CheckFile(fileInfoModuleDto.UploadedFile, type))
+            if (_fileSecurity.CheckFile(fileInfoModuleDto.UploadedFile, type))
             {
                 result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
