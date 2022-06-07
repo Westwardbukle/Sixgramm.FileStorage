@@ -1,12 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Sixgramm.FileStorage.Common.Error;
-using Sixgramm.FileStorage.Common.Result;
-using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.FileSecurity;
 
 namespace Sixgramm.FileStorage.Core.Services;
