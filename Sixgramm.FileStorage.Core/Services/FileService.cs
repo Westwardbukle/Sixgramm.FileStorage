@@ -5,15 +5,13 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
+using Sixgramm.FileStorage.Common.Types;
 using Sixgramm.FileStorage.Core.Dto.Download;
 using Sixgramm.FileStorage.Core.Dto.File;
 using Sixgramm.FileStorage.Core.Dto.FileInfo;
-using Sixgramm.FileStorage.Core.FFMpeg;
 using Sixgramm.FileStorage.Core.File;
+using Sixgramm.FileStorage.Core.FileSave;
 using Sixgramm.FileStorage.Core.FileSecurity;
-using Sixgramm.FileStorage.Core.SaveFile;
-using Sixgramm.FileStorage.Core.Token;
-using Sixgramm.FileStorage.Database.Models;
 using Sixgramm.FileStorage.Database.Repository.File;
 using ContentResult = Sixgramm.FileStorage.Common.Content.ContentResult;
 
@@ -23,27 +21,21 @@ namespace Sixgramm.FileStorage.Core.Services
     {
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
-        private readonly ITokenService _tokenService;
-        private readonly IFilePathService _filePath;
         private readonly IFileSecurityService _fileSecurity;
-        private readonly IFFMpegService _ffMpegService;
+        private readonly IFileSaveService _fileSave;
 
         public FileService
         (
             IFileRepository fileRepository,
             IMapper mapper,
-            ITokenService tokenService,
-            IFilePathService filePath,
             IFileSecurityService fileSecurity,
-            IFFMpegService ffMpegService
+            IFileSaveService fileSave
         )
         {
             _fileRepository = fileRepository;
             _mapper = mapper;
-            _tokenService = tokenService;
-            _filePath = filePath;
             _fileSecurity = fileSecurity;
-            _ffMpegService = ffMpegService;
+            _fileSave = fileSave;
         }
 
         public async Task<ResultContainer<FileDownloadResponseDto>> UploadFile(FileInfoModuleDto fileInfoModuleDto)
@@ -56,59 +48,46 @@ namespace Sixgramm.FileStorage.Core.Services
                 return result;
             }
 
-            var name = Guid.NewGuid();
-            var videoName720 = Guid.NewGuid();
             var type = Path.GetExtension(fileInfoModuleDto.UploadedFile.FileName).ToLowerInvariant();
+
+            var fileSource = fileInfoModuleDto.FileSource switch
+            {
+                FileSource.Post => "Post",
+                FileSource.Message => "Message",
+                FileSource.Comment => "Comment",
+                _ => "Avatar"
+            };
 
             if (!_fileSecurity.CheckFile(fileInfoModuleDto.UploadedFile, type))
             {
                 result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
             }
-
-            _filePath.SetFilePath(type, name, videoName720, fileInfoModuleDto, out var firstPath, out var outputPath,
-                out var fileSource);
-
-            await using (var fileStream = new FileStream(firstPath, FileMode.Create))
+            
+            if (fileInfoModuleDto.FileSource == FileSource.Avatar)
             {
-                await fileInfoModuleDto.UploadedFile.CopyToAsync(fileStream);
+                if (!(type.Contains(".jpg") || type.Contains(".jpeg") || type.Contains(".png")))
+                {
+                    result.ErrorType = ErrorType.UnsupportedMediaType;
+                    return result;
+                }
+
+                var avatar = await _fileSave.SaveAvatar(type, fileSource, fileInfoModuleDto);
+                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(
+                    await _fileRepository.Create(avatar));
+                return result;
             }
 
             if (type.Contains(".mp4"))
             {
-                await _ffMpegService.ConvertingVideoHd(firstPath, outputPath);
-                var fileVideo = new FileInfo(firstPath);
-                fileVideo.Delete();
-
-                var fileMp4Info = new FileInfo(outputPath);
-
-                var fileMp4 = new FileModel()
-                {
-                    Name = videoName720,
-                    UserId = _tokenService.CurrentUserId().Value,
-                    Path = outputPath,
-                    Length = fileMp4Info.Length,
-                    Types = type,
-                    SourceId = fileInfoModuleDto.SourceId,
-                    FileSource = fileSource
-                };
-                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(fileMp4));
+                var videoFile = await _fileSave.SaveVideoFile(type, fileSource, fileInfoModuleDto.SourceId.ToString(),
+                    fileInfoModuleDto);
+                result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(videoFile));
                 return result;
             }
 
-            var fileInfo = new FileInfo(firstPath);
-            var file = new FileModel()
-            {
-                Name = name,
-                UserId = _tokenService.CurrentUserId().Value,
-                Path = firstPath,
-                Length = fileInfo.Length,
-                Types = type,
-                SourceId = fileInfoModuleDto.SourceId,
-                FileSource = fileSource
-            };
-
-            result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(file));
+            var fileModel = await _fileSave.SaveFile(type, fileSource, fileInfoModuleDto);
+            result = _mapper.Map<ResultContainer<FileDownloadResponseDto>>(await _fileRepository.Create(fileModel));
             return result;
         }
 
