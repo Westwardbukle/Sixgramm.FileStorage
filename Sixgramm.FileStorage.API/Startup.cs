@@ -48,6 +48,18 @@ namespace Sixgramm.FileStorage.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            { 
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:5184")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                    });
+            });
+            
             // Configure App Options
             services.Configure<AppOptions>(Configuration.GetSection(AppOptions.App));
             var appOptions = Configuration.GetSection(AppOptions.App).Get<AppOptions>();
@@ -107,12 +119,13 @@ namespace Sixgramm.FileStorage.API
                         } 
                     }
                 );
+                
             }
 
             app.UseHttpsRedirection();
-
+            
             app.UseRouting();
-
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 

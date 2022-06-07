@@ -46,7 +46,7 @@ namespace Sixgramm.FileStorage.API
         public async Task<ActionResult> UploadFile([FromForm]FileInfoModuleDto fileInfoModuleDto)
         => await ReturnResult<ResultContainer<FileDownloadResponseDto>, FileDownloadResponseDto>
                 (_fileService.UploadFile(fileInfoModuleDto));
-
+        
         /// <summary>
         /// Get file by Id
         /// </summary>
@@ -57,7 +57,7 @@ namespace Sixgramm.FileStorage.API
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetById(Guid id)
-            => await ReturnResult<ResultContainer<PhysicalFileResult>,PhysicalFileResult>
+            => await ReturnFileResult<ResultContainer<FileInfoDto>,FileInfoDto>
                 (_fileService.GetById(id));
         
         /// <summary>

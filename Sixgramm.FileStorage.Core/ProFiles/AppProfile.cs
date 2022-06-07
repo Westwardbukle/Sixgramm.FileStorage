@@ -23,9 +23,9 @@ namespace Sixgramm.FileStorage.Core.ProFiles
                 .ForMember("Data", opt =>
                     opt.MapFrom(f => f));
             
-            CreateMap<PhysicalFileResult, ResultContainer<PhysicalFileResult>>()
+            /*CreateMap<PhysicalFileResult, ResultContainer<PhysicalFileResult>>()
                 .ForMember("Data", opt =>
-                    opt.MapFrom(f => f));
+                    opt.MapFrom(f => f));*/
         }
     }
 }

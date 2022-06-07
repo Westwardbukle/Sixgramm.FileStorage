@@ -2,8 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
-using FFMpegCore;
-using FFMpegCore.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Sixgramm.FileStorage.Common.Error;
 using Sixgramm.FileStorage.Common.Result;
@@ -114,9 +112,9 @@ namespace Sixgramm.FileStorage.Core.Services
             return result;
         }
 
-        public async Task<ResultContainer<PhysicalFileResult>> GetById(Guid id)
+        public async Task<ResultContainer<FileInfoDto>> GetById(Guid id)
         {
-            var result = new ResultContainer<PhysicalFileResult>();
+            var result = new ResultContainer<FileInfoDto>();
             var file = await _fileRepository.GetById(id);
             if (file == null)
             {
@@ -128,9 +126,17 @@ namespace Sixgramm.FileStorage.Core.Services
 
             if (fileInfo.Exists)
             {
-                var fileResult = GetFileResult(file.Path, file.Types, file.Name.ToString());
+                var contentType = $"image/{fileInfo.Extension[1..]}";
+                
+                var fileInfoDto = new FileInfoDto()
+                {
+                    FileName = fileInfo.Name,
+                    FilePath = fileInfo.FullName,
+                    FileType = contentType
+                };
 
-                result = _mapper.Map<ResultContainer<PhysicalFileResult>>(fileResult);
+                result.Data = fileInfoDto;
+
                 return result;
             }
 
@@ -157,14 +163,10 @@ namespace Sixgramm.FileStorage.Core.Services
             return result;
         }
 
-        private static PhysicalFileResult GetFileResult(string path, string types, string name)
+        /*private static FileResult GetFileResult(string path, string types, string name)
         {
-            return new PhysicalFileResult(path, "application/octet-stream")
-            {
-                FileDownloadName = name + types,
-                EnableRangeProcessing = true,
-                FileName = name,
-            };
-        }
+            var mas = System.IO.File.ReadAllBytes(path);
+            return File(mas, types, name);
+        }*/
     }
 }

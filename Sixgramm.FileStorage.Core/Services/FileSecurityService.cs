@@ -24,7 +24,7 @@ public class FileSecurityService : IFileSecurityService
     }
 
 
-    private static Dictionary<string, List<byte[]>> _fileSignature = new Dictionary<string, List<byte[]>>
+    private static readonly Dictionary<string, List<byte[]>> FileSignature = new()
     {
         {
             ".jpeg", new List<byte[]>
@@ -107,9 +107,9 @@ public class FileSecurityService : IFileSecurityService
     private static bool CheckSignature(IFormFile uploadedFile, string type)
     {
         using var reader = new BinaryReader(uploadedFile.OpenReadStream());
-        if (_fileSignature.ContainsKey(type))
+        if (FileSignature.ContainsKey(type))
         {
-            var signatures = _fileSignature[type];
+            var signatures = FileSignature[type];
             var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
             if (signatures.Any(signature =>
                     headerBytes.Take(signature.Length).SequenceEqual(signature)) == false)
