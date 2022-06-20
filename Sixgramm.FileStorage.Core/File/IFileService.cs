@@ -12,7 +12,7 @@ namespace Sixgramm.FileStorage.Core.File
     public interface IFileService
     {
         Task<ResultContainer<FileDownloadResponseDto>> UploadFile(FileInfoModuleDto fileInfoModuleDto);
-        Task<ResultContainer<PhysicalFileResult>> GetById(Guid id);
+        Task<ResultContainer<FileInfoDto>> GetById(Guid id);
         Task<ResultContainer<FileModelResponseDto>> Delete(Guid id);
     }
 }

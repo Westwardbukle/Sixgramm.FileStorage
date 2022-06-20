@@ -63,7 +63,7 @@ namespace Sixgramm.FileStorage.Core.Services
                 result.ErrorType = ErrorType.UnsupportedMediaType;
                 return result;
             }
-            
+
             if (fileInfoModuleDto.FileSource == FileSource.Avatar)
             {
                 if (!(type.Contains(".jpg") || type.Contains(".jpeg") || type.Contains(".png")))
@@ -91,23 +91,21 @@ namespace Sixgramm.FileStorage.Core.Services
             return result;
         }
 
-        public async Task<ResultContainer<PhysicalFileResult>> GetById(Guid id)
+        public async Task<ResultContainer<FileInfoDto>> GetById(Guid id)
         {
-            var result = new ResultContainer<PhysicalFileResult>();
+            var result = new ResultContainer<FileInfoDto>();
             var file = await _fileRepository.GetById(id);
-            if (file == null)
+            if (file is null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
-            }
+            }   
 
             var fileInfo = new FileInfo(file.Path);
 
             if (fileInfo.Exists)
             {
-                var fileResult = GetFileResult(file.Path, file.Types, file.Name.ToString());
-
-                result = _mapper.Map<ResultContainer<PhysicalFileResult>>(fileResult);
+                result = _mapper.Map<ResultContainer<FileInfoDto>>(file);
                 return result;
             }
 
@@ -132,16 +130,6 @@ namespace Sixgramm.FileStorage.Core.Services
             result.ContentResult = ContentResult.NoContentResult;
 
             return result;
-        }
-
-        private static PhysicalFileResult GetFileResult(string path, string types, string name)
-        {
-            return new PhysicalFileResult(path, "application/octet-stream")
-            {
-                FileDownloadName = name + types,
-                EnableRangeProcessing = true,
-                FileName = name,
-            };
         }
     }
 }

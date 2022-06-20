@@ -1,17 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -20,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sixgramm.FileStorage.Core.FFMpeg;
@@ -49,6 +42,17 @@ namespace Sixgramm.FileStorage.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            { 
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
+            });
+            
             // Configure App Options
             services.Configure<AppOptions>(Configuration.GetSection(AppOptions.App));
             var appOptions = Configuration.GetSection(AppOptions.App).Get<AppOptions>();
@@ -88,11 +92,9 @@ namespace Sixgramm.FileStorage.API
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             
-            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);  
+            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
             services.AddControllers();
             services.AddHttpContextAccessor();
-
-            services.AddCors();
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,28 +105,20 @@ namespace Sixgramm.FileStorage.API
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(
-                    opt => {
-                        foreach (var description in provider.ApiVersionDescriptions) {
+                    opt =>
+                    {
+                        foreach (var description in provider.ApiVersionDescriptions)
+                        {
                             opt.SwaggerEndpoint(
-                                $"/swagger/{description.GroupName}/swagger.json", 
-                                description.GroupName.ToUpperInvariant()); 
-                        } 
+                                $"/swagger/{description.GroupName}/swagger.json",
+                                description.GroupName.ToUpperInvariant());
+                        }
                     }
                 );
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
-
-            app.UseCors(c => c.WithOrigins("http://10.254.7.74:3000", "http://10.254.7.20:3000")
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-            );
-                
-            
-
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 
